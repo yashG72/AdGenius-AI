@@ -5,7 +5,7 @@ Specialized AI agents research a brand (RAG over uploaded documents) and its com
 (live web search), develop creative concepts, write scripts, build storyboards with
 image-generation prompts, and critique the result before a human approves it.
 
-> **Status:** Phase 1 (database layer) complete. See [docs/ROADMAP.md](docs/ROADMAP.md) for the phase plan.
+> **Status:** Phase 2 (auth & organizations) complete. See [docs/ROADMAP.md](docs/ROADMAP.md) for the phase plan.
 
 ## Tech stack
 
@@ -27,6 +27,7 @@ AdGenius-AI/
 │   │   ├── core/            Config, logging, middleware, errors
 │   │   ├── db/              SQLAlchemy base, mixins, engine/session
 │   │   ├── models/          ORM models (one file per table)
+│   │   ├── services/        Business logic (auth, organizations, ...)
 │   │   ├── api/             HTTP layer (deps + versioned routers)
 │   │   └── schemas/         Pydantic request/response models
 │   ├── alembic/             Database migrations
@@ -72,7 +73,12 @@ A test (`test_migrations_match_models`) fails if a model changes without a match
 
 ## API conventions
 
-- All endpoints live under `/api/v1`.
+- All endpoints live under `/api/v1`. Interactive docs at `/docs`.
+- Auth: `POST /auth/login` returns an access token (15 min) and a refresh token (30 days).
+  Send `Authorization: Bearer <access_token>`; call `POST /auth/refresh` for a new pair
+  (each refresh token works once).
+- Collections are returned as `{"items": [...]}`.
+- Users only see organizations they belong to; others get `404`.
 - Every response carries an `X-Request-ID` header (used to correlate logs).
 - Every error has the same shape:
 

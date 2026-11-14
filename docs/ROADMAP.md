@@ -6,8 +6,8 @@ The project is built one phase at a time. Each phase ends with passing tests and
 |------:|-------|----------|--------|
 | 0 | Repo setup, backend foundation (config, logging, request IDs, error envelope, health check, tests) | FastAPI, Pydantic Settings, pytest | ✅ Done |
 | 1 | Database layer: async SQLAlchemy, base models (UUID, timestamps), Alembic migrations, organizations/users/memberships tables, readiness check | PostgreSQL 17, SQLAlchemy 2, Alembic | ✅ Done |
-| 2 | Auth & organizations: register/login, JWT + refresh-token rotation, organization APIs, RBAC (owner/admin/member) | argon2, PyJWT | ⏳ Next |
-| 3 | Brand management CRUD with org-level isolation | FastAPI, SQLAlchemy | |
+| 2 | Auth & organizations: register/login/logout, JWT access tokens, refresh-token rotation with reuse detection, profile & password change, organization + member APIs, RBAC (owner/admin/member) | argon2, PyJWT | ✅ Done |
+| 3 | Brand management CRUD with org-level isolation | FastAPI, SQLAlchemy | ⏳ Next |
 | 4 | Document upload + async ingestion pipeline (validate → store → extract → chunk → embed → index) | Celery, Redis, PyMuPDF, python-docx, Qdrant | |
 | 5 | Advanced RAG engine: query rewriting, hybrid search, fusion, reranking, citations, retrieval eval | LangChain, Qdrant | |
 | 6 | Live web research tool with cached, cited results | Tavily | |
@@ -18,6 +18,13 @@ The project is built one phase at a time. Each phase ends with passing tests and
 | 11 | Frontend campaign flow: wizard, live execution view, concept selection, script/storyboard editors, critic view | Next.js | |
 | 12 | Hardening: security review, rate limiting, test coverage, RAG/agent evaluation | | |
 | 13 | Containerization & deployment (deferred) | Docker | |
+
+## Deferred items (tracked so they aren't forgotten)
+
+- Login rate limiting / brute-force protection (phase 12, needs Redis).
+- Periodic cleanup of expired/revoked refresh tokens (Celery beat, phase 4+).
+- Email invitations and email verification (needs an email provider).
+- Web clients: consider keeping the refresh token in an httpOnly cookie (phase 10).
 
 ## Local services needed (no Docker for now)
 

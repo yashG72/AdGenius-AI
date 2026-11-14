@@ -7,7 +7,11 @@ Values are validated by Pydantic at startup: a bad value fails fast instead of a
 from functools import lru_cache
 from typing import Literal
 
+from pydantic import Field, SecretStr, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
+
+# Only acceptable for local/test; the validator below rejects it in staging/production.
+_INSECURE_DEV_SECRET = "insecure-dev-secret-change-me"
 
 
 class Settings(BaseSettings):
@@ -37,6 +41,21 @@ class Settings(BaseSettings):
     database_echo: bool = False  # log every SQL statement (noisy; debugging only)
     database_pool_size: int = 10
     database_max_overflow: int = 20
+
+    # ---------- Auth ----------
+    # Signs access tokens. Anyone holding it can forge logins - keep it secret and long.
+    jwt_secret_key: SecretStr = SecretStr(_INSECURE_DEV_SECRET)
+    jwt_algorithm: Literal["HS256"] = "HS256"
+    access_token_expire_minutes: int = Field(default=15, ge=1)
+    refresh_token_expire_days: int = Field(default=30, ge=1)
+
+    @model_validator(mode="after")
+    def _require_strong_secret_outside_dev(self) -> "Settings":
+        if self.environment in {"staging", "production"}:
+            secret = self.jwt_secret_key.get_secret_value()
+            if secret == _INSECURE_DEV_SECRET or len(secret) < 32:
+                raise ValueError("JWT_SECRET_KEY must be a random value of 32+ characters.")
+        return self
 
 
 @lru_cache

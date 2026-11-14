@@ -19,6 +19,17 @@ class MembershipRole(enum.StrEnum):
     ADMIN = "admin"
     MEMBER = "member"
 
+    @property
+    def rank(self) -> int:
+        return _ROLE_RANK[self]
+
+    def at_least(self, other: "MembershipRole") -> bool:
+        """Role hierarchy check: OWNER > ADMIN > MEMBER."""
+        return self.rank >= other.rank
+
+
+_ROLE_RANK = {MembershipRole.MEMBER: 1, MembershipRole.ADMIN: 2, MembershipRole.OWNER: 3}
+
 
 class Membership(UUIDPrimaryKeyMixin, TimestampMixin, Base):
     __tablename__ = "memberships"

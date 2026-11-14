@@ -27,6 +27,7 @@ class AppError(Exception):
     status_code: int = 500
     code: str = "internal_error"
     message: str = "An unexpected error occurred."
+    headers: dict[str, str] | None = None
 
     def __init__(self, message: str | None = None, *, details: Any = None) -> None:
         self.message = message or self.message
@@ -34,8 +35,13 @@ class AppError(Exception):
         super().__init__(self.message)
 
 
+class BadRequestError(AppError):
+    status_code, code, message = 400, "bad_request", "The request could not be processed."
+
+
 class AuthenticationError(AppError):
     status_code, code, message = 401, "not_authenticated", "Authentication required."
+    headers = {"WWW-Authenticate": "Bearer"}  # required by the HTTP spec for 401
 
 
 class PermissionDeniedError(AppError):
@@ -66,10 +72,17 @@ _HTTP_STATUS_CODES = {
 
 
 def error_response(
-    request: Request, status_code: int, code: str, message: str, details: Any = None
+    request: Request,
+    status_code: int,
+    code: str,
+    message: str,
+    details: Any = None,
+    headers: dict[str, str] | None = None,
 ) -> JSONResponse:
     request_id = getattr(request.state, "request_id", None)
-    headers = {REQUEST_ID_HEADER: request_id} if request_id else None
+    headers = dict(headers or {})
+    if request_id:
+        headers[REQUEST_ID_HEADER] = request_id
     return JSONResponse(
         status_code=status_code,
         content={
@@ -87,7 +100,9 @@ def error_response(
 def register_exception_handlers(app: FastAPI) -> None:
     @app.exception_handler(AppError)
     async def handle_app_error(request: Request, exc: AppError) -> JSONResponse:
-        return error_response(request, exc.status_code, exc.code, exc.message, exc.details)
+        return error_response(
+            request, exc.status_code, exc.code, exc.message, exc.details, exc.headers
+        )
 
     @app.exception_handler(StarletteHTTPException)
     async def handle_http_error(request: Request, exc: StarletteHTTPException) -> JSONResponse:

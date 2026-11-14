@@ -88,3 +88,28 @@ async def client(db_session: AsyncSession) -> AsyncIterator[AsyncClient]:
     transport = ASGITransport(app=app)
     async with AsyncClient(transport=transport, base_url="http://test") as http_client:
         yield http_client
+
+
+DEFAULT_PASSWORD = "correct-horse-battery"
+
+
+@pytest.fixture
+def register_and_login(client: AsyncClient):
+    """Factory: create a user via the API and return auth headers for them.
+
+    Usage: headers = await register_and_login("alice@example.com")
+    """
+
+    async def _register_and_login(email: str, password: str = DEFAULT_PASSWORD) -> dict:
+        response = await client.post(
+            "/api/v1/auth/register",
+            json={"email": email, "password": password, "full_name": email.split("@")[0]},
+        )
+        assert response.status_code == 201, response.text
+        response = await client.post(
+            "/api/v1/auth/login", json={"email": email, "password": password}
+        )
+        assert response.status_code == 200, response.text
+        return {"Authorization": f"Bearer {response.json()['access_token']}"}
+
+    return _register_and_login
