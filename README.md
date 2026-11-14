@@ -5,7 +5,8 @@ Specialized AI agents research a brand (RAG over uploaded documents) and its com
 (live web search), develop creative concepts, write scripts, build storyboards with
 image-generation prompts, and critique the result before a human approves it.
 
-> **Status:** Phase 4 (document ingestion) complete. See [docs/ROADMAP.md](docs/ROADMAP.md) for the phase plan.
+> **Status:** Phase 5 (RAG engine) complete. See [docs/RAG_EVALUATION.md](docs/RAG_EVALUATION.md)
+> for how retrieval settings were chosen. See [docs/ROADMAP.md](docs/ROADMAP.md) for the phase plan.
 
 ## Tech stack
 
@@ -30,9 +31,13 @@ AdGenius-AI/
 │   │   ├── services/        Business logic (auth, organizations, ...)
 │   │   ├── ingestion/       Document pipeline: validate, extract, chunk, embed, index
 │   │   ├── worker/          Celery app, background tasks, dispatch helpers
+│   │   ├── rag/             Retrieval, rewriting, reranking, grounded answers, metrics
+│   │   ├── llm/             Structured LLM client (Gemini via LangChain)
 │   │   ├── api/             HTTP layer (deps + versioned routers)
 │   │   └── schemas/         Pydantic request/response models
 │   ├── alembic/             Database migrations
+│   ├── evals/               Labelled datasets for evaluation
+│   ├── scripts/             CLI tools (e.g. scripts/eval_retrieval.py)
 │   └── tests/               pytest suite (runs against a real test database)
 ├── frontend/                Next.js app (added in phase 10)
 └── docs/                    Roadmap and design notes

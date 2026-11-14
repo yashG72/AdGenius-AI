@@ -29,10 +29,17 @@ class Embeddings:
     sparse: list[SparseVector]
 
 
+@dataclass(frozen=True)
+class QueryEmbedding:
+    dense: list[float]
+    sparse: SparseVector
+
+
 class Embedder(Protocol):
     @property
     def dense_dim(self) -> int: ...
     def embed_documents(self, texts: list[str]) -> Embeddings: ...
+    def embed_query(self, text: str) -> QueryEmbedding: ...
 
 
 class FastEmbedEmbedder:
@@ -58,6 +65,17 @@ class FastEmbedEmbedder:
                 for s in self._sparse.embed(texts, batch_size=self._batch_size)
             ]
         return Embeddings(dense=dense, sparse=sparse)
+
+    def embed_query(self, text: str) -> QueryEmbedding:
+        # query_embed differs from embed for BM25: a query is a bag of terms, not a
+        # document, so term-frequency/length normalisation is not applied.
+        with self._lock:
+            dense = next(iter(self._dense.query_embed(text))).tolist()
+            sparse = next(iter(self._sparse.query_embed(text)))
+        return QueryEmbedding(
+            dense=dense,
+            sparse=SparseVector(indices=sparse.indices.tolist(), values=sparse.values.tolist()),
+        )
 
 
 @lru_cache

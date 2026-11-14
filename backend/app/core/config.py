@@ -73,6 +73,27 @@ class Settings(BaseSettings):
     chunk_size_tokens: int = Field(default=800, ge=100)
     chunk_overlap_tokens: int = Field(default=120, ge=0)
 
+    # ---------- LLM (Google Gemini, free AI Studio tier) ----------
+    google_api_key: SecretStr | None = None  # without it, LLM features degrade gracefully
+    llm_model: str = "gemini-2.5-flash"
+    llm_temperature: float = Field(default=0.2, ge=0, le=2)
+    llm_timeout_seconds: int = Field(default=60, ge=1)
+    llm_max_retries: int = Field(default=2, ge=0)
+
+    # ---------- RAG ----------
+    # Reranking is OFF by default: on our evaluation set (docs/RAG_EVALUATION.md) none of
+    # four local cross-encoders beat plain hybrid search, while adding 0.3-2.7 s per query.
+    # MiniLM-L-12 was the best of them (note: it reads only the first 512 tokens of a chunk).
+    reranker_model: str = "Xenova/ms-marco-MiniLM-L-12-v2"
+    rag_rerank_enabled: bool = False
+    rag_query_rewrite_enabled: bool = True
+    rag_max_query_variants: int = Field(default=3, ge=0, le=5)  # extra queries from rewriting
+    rag_candidates_per_search: int = Field(default=20, ge=1)  # depth of each dense/sparse search
+    rag_rerank_candidates: int = Field(default=20, ge=1)  # fused results sent to the reranker
+    rag_top_k: int = Field(default=8, ge=1)  # results returned by search
+    rag_context_chunks: int = Field(default=5, ge=1)  # chunks given to the LLM
+    rag_context_token_budget: int = Field(default=4000, ge=200)
+
     @model_validator(mode="after")
     def _overlap_smaller_than_chunk(self) -> "Settings":
         if self.chunk_overlap_tokens >= self.chunk_size_tokens:

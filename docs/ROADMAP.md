@@ -9,8 +9,8 @@ The project is built one phase at a time. Each phase ends with passing tests and
 | 2 | Auth & organizations: register/login/logout, JWT access tokens, refresh-token rotation with reuse detection, profile & password change, organization + member APIs, RBAC (owner/admin/member) | argon2, PyJWT | ✅ Done |
 | 3 | Brand management: full profile (JSONB for structured fields), validation, pagination/search, soft delete, org-level isolation | FastAPI, SQLAlchemy, JSONB | ✅ Done |
 | 4 | Document upload + async ingestion pipeline (validate → store → extract → clean → chunk → embed dense+sparse → index), lifecycle statuses, delete & reindex | Celery, Memurai, PyMuPDF, python-docx, LangChain splitters, FastEmbed, Qdrant | ✅ Done |
-| 5 | Advanced RAG engine: query rewriting, hybrid search, fusion, reranking, citations, retrieval eval | LangChain, Qdrant, Gemini (free tier) | ⏳ Next |
-| 6 | Live web research tool with cached, cited results | Tavily | |
+| 5 | RAG engine: LLM query rewriting, hybrid dense+BM25 search with server-side RRF fusion, live-document check, optional cross-encoder reranking, context assembly, grounded answers with validated citations, retrieval evaluation harness | LangChain, Qdrant, FastEmbed, Gemini | ✅ Done (live LLM test pending API key) |
+| 6 | Live web research tool with cached, cited results | Tavily | ⏳ Next |
 | 7 | Multi-agent workflow: 6 agents, parallel research, human approval interrupt, critic loop | LangGraph, Postgres checkpointer | |
 | 8 | Campaigns, versioned runs, approvals, outputs APIs, SSE event stream | FastAPI, Celery, SSE | |
 | 9 | Quality evaluation dashboard data, PDF export, LangSmith tracing | LangSmith, PDF renderer | |
@@ -34,7 +34,9 @@ Phases 1+ need services running locally on Windows:
   `postgresql-17` Windows service. App role `adgenius` owns databases `adgenius` (dev) and
   `adgenius_test` (wiped by every test run).
 - **Redis** — Memurai Developer (Redis-compatible Windows service, port 6379):
-  `winget install --id Memurai.MemuraiDeveloper` (run in your own terminal; needs admin approval).
+  `winget install --id Memurai.MemuraiDeveloper`. Its MSI fails on this machine with error
+  1603 ("Failed to create temp directory, error 5") — still unresolved. The Celery worker was
+  verified end-to-end with kombu's filesystem broker instead.
 - **Qdrant 1.20** — Windows binary in `%USERPROFILE%\qdrant`; start it with
   `powershell -File $env:USERPROFILE\qdrant\start-qdrant.ps1` (localhost only, dashboard at
   http://127.0.0.1:6333/dashboard).

@@ -13,10 +13,11 @@ ingestion overwrites the same points instead of creating duplicates (idempotency
 import uuid
 from collections.abc import Sequence
 from dataclasses import dataclass
+from functools import lru_cache
 
 from qdrant_client import AsyncQdrantClient, models
 
-from app.core.config import Settings
+from app.core.config import Settings, get_settings
 from app.ingestion.chunking import Chunk
 from app.ingestion.embeddings import Embeddings
 
@@ -41,6 +42,12 @@ def point_id(document_id: uuid.UUID, chunk_index: int) -> str:
 def create_qdrant_client(settings: Settings) -> AsyncQdrantClient:
     api_key = settings.qdrant_api_key.get_secret_value() if settings.qdrant_api_key else None
     return AsyncQdrantClient(url=settings.qdrant_url, api_key=api_key, timeout=30)
+
+
+@lru_cache
+def get_qdrant_client() -> AsyncQdrantClient:
+    """Shared client for the API process (connection reuse); closed on app shutdown."""
+    return create_qdrant_client(get_settings())
 
 
 class VectorStore:

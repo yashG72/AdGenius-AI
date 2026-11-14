@@ -18,6 +18,7 @@ from app.core.exceptions import register_exception_handlers
 from app.core.logging import configure_logging
 from app.core.middleware import REQUEST_ID_HEADER, RequestIDMiddleware
 from app.db.session import engine
+from app.ingestion.vector_store import get_qdrant_client
 
 logger = logging.getLogger(__name__)
 
@@ -27,8 +28,10 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
     # Startup (the DB pool connects lazily on first query; Redis/Qdrant join in later phases).
     logger.info("Starting %s v%s", app.title, app.version)
     yield
-    # Shutdown: close pooled DB connections cleanly.
+    # Shutdown: close pooled DB connections and the shared Qdrant client cleanly.
     await engine.dispose()
+    if get_qdrant_client.cache_info().currsize:
+        await get_qdrant_client().close()
     logger.info("Shut down %s", app.title)
 
 

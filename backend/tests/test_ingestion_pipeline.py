@@ -3,7 +3,6 @@
 Uses a tiny deterministic fake embedder so tests are fast and need no model download.
 """
 
-import hashlib
 import uuid
 from contextlib import asynccontextmanager
 from pathlib import Path
@@ -15,31 +14,13 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.config import get_settings
 from app.core.storage import LocalFileStorage
-from app.ingestion.embeddings import Embeddings, SparseVector
 from app.ingestion.pipeline import ingest_document
 from app.ingestion.vector_store import VectorStore
 from app.models import BrandDocument, DocumentStatus
+from tests.fakes import FakeEmbedder
 from tests.files import pdf_bytes
 
 pytestmark = pytest.mark.anyio
-
-
-class FakeEmbedder:
-    dense_dim = 8
-
-    def embed_documents(self, texts: list[str]) -> Embeddings:
-        dense, sparse = [], []
-        for text in texts:
-            digest = hashlib.sha256(text.encode()).digest()
-            dense.append([b / 255 + 0.01 for b in digest[: self.dense_dim]])
-            words = sorted(
-                {
-                    int(hashlib.md5(w.encode()).hexdigest(), 16) % 10_000
-                    for w in text.lower().split()
-                }
-            )
-            sparse.append(SparseVector(indices=words, values=[1.0] * len(words)))
-        return Embeddings(dense=dense, sparse=sparse)
 
 
 class BrokenVectorStore(VectorStore):

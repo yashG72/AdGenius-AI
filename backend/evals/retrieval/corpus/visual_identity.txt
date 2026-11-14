@@ -1,0 +1,18 @@
+MANO Visual Identity Standards
+
+Colour palette
+Primary: Mango Gold, hex #FFB300. Use it for packaging, hero backgrounds and calls to action.
+Secondary: Midnight Ink, hex #1A1A1A, for body text and dark scenes.
+Accent: Lime Pop, hex #9BE15D, only for limited-edition flavours and sparingly in social graphics.
+
+Typography
+Headlines use Archivo Black in uppercase. Body copy uses Inter Regular at a minimum of 14 pixels on screens.
+
+Photography and video style
+Shoot in natural daylight with warm tones. Show real students in real places such as hostels, libraries and campus festivals. Cans should appear condensation-covered and cold. Avoid studio-white backgrounds and stock photos with posed smiles.
+
+Motion
+Transitions should be quick cuts or whip pans. The signature animation is a can tab popping open with a burst of golden bubbles, used as the end card of every video.
+
+Vertical video
+For Instagram Reels and YouTube Shorts, frame for 9:16 and keep the product and any text inside the central safe area, away from the top 250 and bottom 340 pixels.

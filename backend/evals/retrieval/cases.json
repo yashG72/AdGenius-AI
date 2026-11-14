@@ -1,0 +1,20 @@
+[
+  {"query": "What words or claims are we not allowed to use about health?", "relevant": ["never make health, medical or therapeutic claims"]},
+  {"query": "Can we say MANO helps students study better?", "relevant": ["improves exam performance", "helps you ace exams"]},
+  {"query": "hex code for the main brand colour", "relevant": ["#FFB300"]},
+  {"query": "MNO-330-LM", "relevant": ["SKU MNO-330-LM"]},
+  {"query": "how much sugar is in the lime flavour", "relevant": ["3 g sugar, 14 kcal"]},
+  {"query": "What is the official slogan and can it be changed?", "relevant": ["Do not modify, translate or abbreviate the tagline"]},
+  {"query": "How should our brand sound when we write copy?", "relevant": ["Write in short, punchy sentences"]},
+  {"query": "Which past ad performed best and why?", "relevant": ["creator-led humour outperformed"]},
+  {"query": "who is our target customer that lives in a hostel", "relevant": ["Campus Hustler Asha"]},
+  {"query": "Are we allowed to mention rival soft drink brands in ads?", "relevant": ["Never name or show competitor brands"]},
+  {"query": "what font do headlines use", "relevant": ["Archivo Black"]},
+  {"query": "annual marketing spend", "relevant": ["4.5 crore rupees"]},
+  {"query": "safe zone for text in vertical reels", "relevant": ["central safe area"]},
+  {"query": "Is MANO an energy drink? Does it have caffeine?", "relevant": ["no added caffeine"]},
+  {"query": "what happened with the billboard launch", "relevant": ["billboards could not be shown near campuses"]},
+  {"query": "how is the logo supposed to look on a black background", "relevant": ["white version of the wordmark"]},
+  {"query": "price of the six can pack", "relevant": ["330 rupees for the Study Pack"]},
+  {"query": "what lessons did we learn from festival sponsorships", "relevant": ["physical sampling drives trial"]}
+]

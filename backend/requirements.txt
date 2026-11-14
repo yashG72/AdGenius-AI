@@ -25,3 +25,7 @@ pymupdf>=1.25                # PDF text extraction
 python-docx>=1.1             # DOCX text extraction
 langchain-text-splitters>=0.3
 tiktoken>=0.8                # token counting for chunk sizes
+
+# RAG engine (phase 5)
+langchain-core>=0.3          # prompts, messages, structured output
+langchain-google-genai>=2.0  # Gemini chat models (free AI Studio tier)

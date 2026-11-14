@@ -2,7 +2,7 @@
 
 from fastapi import APIRouter
 
-from app.api.v1.routes import auth, brands, documents, health, organizations
+from app.api.v1.routes import auth, brands, documents, health, knowledge, organizations
 from app.schemas.common import ErrorResponse
 
 api_router = APIRouter(
@@ -18,3 +18,4 @@ api_router.include_router(auth.router)
 api_router.include_router(organizations.router)
 api_router.include_router(brands.router)
 api_router.include_router(documents.router)
+api_router.include_router(knowledge.router)
