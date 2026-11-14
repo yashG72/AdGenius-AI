@@ -1,0 +1,5 @@
+# Runtime dependencies. New packages are added phase by phase as they are needed.
+fastapi>=0.115
+uvicorn[standard]>=0.32
+pydantic>=2.9
+pydantic-settings>=2.6
