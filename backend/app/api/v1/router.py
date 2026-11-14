@@ -7,6 +7,7 @@ from app.api.v1.routes import (
     brands,
     campaign_runs,
     campaigns,
+    dashboard,
     documents,
     health,
     knowledge,
@@ -32,3 +33,4 @@ api_router.include_router(knowledge.router)
 api_router.include_router(research.router)
 api_router.include_router(campaigns.router)
 api_router.include_router(campaign_runs.router)
+api_router.include_router(dashboard.router)

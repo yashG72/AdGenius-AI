@@ -2,15 +2,20 @@
 
 import asyncio
 import json
+import re
 import time
 import uuid
 from typing import Annotated, Any
 
-from fastapi import APIRouter, BackgroundTasks, Header, Query, Request, status
+from fastapi import APIRouter, BackgroundTasks, Header, Query, Request, Response, status
 from fastapi.responses import StreamingResponse
+from starlette.concurrency import run_in_threadpool
 
 from app.api.deps import CurrentUserDep, DbSessionDep, SettingsDep
-from app.models import CampaignRun, OutputType
+from app.core.exceptions import ConflictError, NotFoundError
+from app.exports.campaign_pdf import render_pdf
+from app.models import Campaign, CampaignRun, OutputType
+from app.schemas.analytics import EvaluationSummary
 from app.schemas.campaign import (
     AgentRunRead,
     ApprovalRead,
@@ -22,7 +27,7 @@ from app.schemas.campaign import (
     RunSummary,
 )
 from app.schemas.common import ListResponse
-from app.services import campaign_service
+from app.services import analytics_service, campaign_service
 from app.worker import dispatch
 
 router = APIRouter(tags=["campaign runs"])
@@ -203,6 +208,58 @@ async def reject(
     )
     background.add_task(dispatch.enqueue_campaign_run, run.id)
     return ApprovalRead.model_validate(approval)
+
+
+# ---------- Evaluation dashboard & export ----------
+
+
+@router.get("/campaign-runs/{run_id}/evaluation-summary", response_model=EvaluationSummary)
+async def evaluation_summary(
+    run_id: uuid.UUID, user: CurrentUserDep, session: DbSessionDep
+) -> EvaluationSummary:
+    """Score trend across Critic iterations, issues, revisions and agent timings."""
+    run = await campaign_service.get_run_for_user(session, run_id, user.id)
+    return EvaluationSummary(**await analytics_service.evaluation_summary(session, run))
+
+
+@router.get(
+    "/campaign-runs/{run_id}/export.pdf",
+    response_class=Response,
+    responses={200: {"content": {"application/pdf": {}}}},
+    summary="Download the finished campaign as a PDF",
+)
+async def export_pdf(run_id: uuid.UUID, user: CurrentUserDep, session: DbSessionDep) -> Response:
+    run = await campaign_service.get_run_for_user(session, run_id, user.id)
+    try:
+        final, _ = await campaign_service.get_output(
+            session, run.id, OutputType.FINAL_CAMPAIGN, None
+        )
+    except NotFoundError as exc:
+        raise ConflictError("The campaign is not finished yet - nothing to export.") from exc
+    campaign = await session.get(Campaign, run.campaign_id)
+    context = {
+        "campaign_name": campaign.name,
+        "brand_name": run.brand_snapshot.get("name", ""),
+        "run": {
+            "version": run.version,
+            "status": run.status.value,
+            "overall_score": run.overall_score,
+        },
+        "brief": run.brief_snapshot,
+        "final": final.content,
+    }
+    pdf = await run_in_threadpool(render_pdf, context)  # CPU work off the event loop
+    filename = f"{_slug(campaign.name)}-v{run.version}.pdf"
+    return Response(
+        content=pdf,
+        media_type="application/pdf",
+        headers={"Content-Disposition": f'attachment; filename="{filename}"'},
+    )
+
+
+def _slug(name: str) -> str:
+    slug = re.sub(r"[^a-z0-9]+", "-", name.lower()).strip("-")
+    return slug[:60] or "campaign"
 
 
 # ---------- Outputs ----------

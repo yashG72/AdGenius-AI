@@ -5,7 +5,8 @@ Specialized AI agents research a brand (RAG over uploaded documents) and its com
 (live web search), develop creative concepts, write scripts, build storyboards with
 image-generation prompts, and critique the result before a human approves it.
 
-> **Status:** Phase 8 (campaigns API, runs, approvals, live events) complete. See [docs/RAG_EVALUATION.md](docs/RAG_EVALUATION.md)
+> **Status:** Phase 9 (PDF export, evaluation & dashboard analytics, tracing) complete —
+> the backend is feature-complete; the Next.js frontend is next. See [docs/RAG_EVALUATION.md](docs/RAG_EVALUATION.md)
 > for how retrieval settings were chosen. See [docs/ROADMAP.md](docs/ROADMAP.md) for the phase plan.
 
 ## Tech stack
@@ -116,7 +117,16 @@ POST /approvals/{id}/approve            {"concept_id": "C2"}   (or /reject {"fee
 GET  /campaign-runs/{run_id}/script     also /concepts /storyboard /evaluation (?version=n)
 POST /campaign-runs/{run_id}/regenerate new version from the current brief (old kept)
 POST /campaign-runs/{run_id}/retry      continue a failed run from its last checkpoint
+GET  /campaign-runs/{run_id}/evaluation-summary   score trend, issues, revisions, timings
+GET  /campaign-runs/{run_id}/export.pdf           finished campaign as a PDF
+GET  /organizations/{id}/dashboard                totals, quality rates, recent activity
 ```
+
+### Agent tracing (optional)
+
+Set `LANGSMITH_API_KEY` (free at https://smith.langchain.com) in `backend/.env`. Every agent
+step and LLM call is then traced in LangSmith, tagged with `organization_id`, `campaign_id`,
+`run_id`, `run_version` and `attempt` for filtering.
 
 The CLI (`python -m scripts.run_campaign`) drives the same workflow without the API.
 - Every response carries an `X-Request-ID` header (used to correlate logs).

@@ -13,8 +13,8 @@ The project is built one phase at a time. Each phase ends with passing tests and
 | 6 | Live web research: sanitized Tavily search, Redis cache (results + query plans), credit budget, evidence-grounded competitor report with validated citations and timestamps | Tavily, Redis, Gemini | ✅ Done |
 | 7 | Multi-agent workflow: 6 agents with structured outputs, parallel research branches, human concept-approval interrupt, critic revision loop (threshold 80, max 2 revisions, then human review), deterministic routing, retry policies, durable PostgreSQL checkpoints, execution trace, optional LangSmith, CLI runner | LangGraph, Postgres checkpointer, Gemini | ✅ Done |
 | 8 | Campaigns API: versioned runs with brief/brand snapshots, idempotent worker execution (start / resume / continue), live progress persistence, approvals API, versioned outputs, retry & regenerate, SSE event stream with Last-Event-ID resume | FastAPI, Celery, SSE | ✅ Done |
-| 9 | Quality evaluation dashboard data, PDF export, LangSmith tracing | LangSmith, PDF renderer | ⏳ Next |
-| 10 | Frontend foundation: Next.js app shell, auth, dashboard, brands, documents | Next.js, TS, Tailwind, shadcn/ui, TanStack Query | |
+| 9 | Campaign PDF export (PyMuPDF HTML renderer, escaped untrusted text), per-run evaluation summary (score trend, issues, revisions, agent timings), organization dashboard (totals, quality rates, activity, recent items), LangSmith trace metadata | PyMuPDF, LangSmith | ✅ Done |
+| 10 | Frontend foundation: Next.js app shell, auth, dashboard, brands, documents | Next.js, TS, Tailwind, shadcn/ui, TanStack Query | ⏳ Next |
 | 11 | Frontend campaign flow: wizard, live execution view, concept selection, script/storyboard editors, critic view | Next.js | |
 | 12 | Hardening: security review, rate limiting, test coverage, RAG/agent evaluation | | |
 | 13 | Containerization & deployment (deferred) | Docker | |

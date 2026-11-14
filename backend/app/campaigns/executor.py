@@ -104,6 +104,15 @@ async def execute_run(
 
     thread = str(run.id)
     recorder = RunRecorder(recorder_session or session, run.id)
+    # Attached to every LangSmith trace of this run, so traces can be filtered by
+    # organization / campaign / run version when debugging agent behaviour.
+    trace_metadata = {
+        "organization_id": str(run.organization_id),
+        "campaign_id": str(run.campaign_id),
+        "run_id": str(run.id),
+        "run_version": run.version,
+        "attempt": run.attempts,
+    }
     try:
         view = await workflow.view(thread)
         if view.status == "not_started":
@@ -115,18 +124,20 @@ async def execute_run(
                     "campaign_name": campaign.name,
                 }
             )
-            view = await workflow.start(thread, brief, run.brand_snapshot, recorder.on_update)
+            view = await workflow.start(
+                thread, brief, run.brand_snapshot, recorder.on_update, trace_metadata
+            )
         elif view.status == "awaiting_concept_approval":
             approval = await _decided_unapplied_approval(session, run.id)
             if approval is not None:
                 decision = ConceptDecision.model_validate(approval.decision)
                 approval.applied_at = _now()
                 await session.commit()
-                view = await workflow.resume(thread, decision, recorder.on_update)
+                view = await workflow.resume(thread, decision, recorder.on_update, trace_metadata)
         elif view.status in WORKFLOW_TO_RUN_STATUS:
             pass  # workflow already finished (e.g. crash after finishing): just sync
         else:
-            view = await workflow.retry(thread, recorder.on_update)
+            view = await workflow.retry(thread, recorder.on_update, trace_metadata)
     except Exception as exc:
         logger.exception("Campaign run %s failed", run.id)
         await session.rollback()

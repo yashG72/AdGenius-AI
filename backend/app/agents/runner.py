@@ -81,6 +81,7 @@ class CampaignWorkflow:
         brief: CampaignBrief,
         brand: dict[str, Any],
         on_update: OnUpdate | None = None,
+        metadata: dict[str, Any] | None = None,
     ) -> RunView:
         """Run from the beginning until the concept-approval pause (or the end)."""
         if (await self.view(thread_id)).status != "not_started":
@@ -91,12 +92,19 @@ class CampaignWorkflow:
             "events": [],
             "revision_history": [],
         }
-        config = self._config(thread_id, {"brand_id": brand["id"], "campaign": brief.campaign_name})
+        config = self._config(
+            thread_id,
+            {"brand_id": brand["id"], "campaign": brief.campaign_name, **(metadata or {})},
+        )
         await self._drive(initial, config, on_update)
         return await self.view(thread_id)
 
     async def resume(
-        self, thread_id: str, decision: ConceptDecision, on_update: OnUpdate | None = None
+        self,
+        thread_id: str,
+        decision: ConceptDecision,
+        on_update: OnUpdate | None = None,
+        metadata: dict[str, Any] | None = None,
     ) -> RunView:
         """Continue a run paused at concept approval with the client's decision."""
         current = await self.view(thread_id)
@@ -105,10 +113,17 @@ class CampaignWorkflow:
         valid = {c["concept_id"] for c in current.pending_approval["concepts"]}
         if decision.action == "approve" and decision.concept_id not in valid:
             raise BadRequestError(f"Unknown concept_id. Choose one of: {', '.join(sorted(valid))}.")
-        await self._drive(Command(resume=decision.model_dump()), self._config(thread_id), on_update)
+        await self._drive(
+            Command(resume=decision.model_dump()), self._config(thread_id, metadata), on_update
+        )
         return await self.view(thread_id)
 
-    async def retry(self, thread_id: str, on_update: OnUpdate | None = None) -> RunView:
+    async def retry(
+        self,
+        thread_id: str,
+        on_update: OnUpdate | None = None,
+        metadata: dict[str, Any] | None = None,
+    ) -> RunView:
         """Re-run from the last checkpoint after a failure (e.g. LLM outage)."""
-        await self._drive(None, self._config(thread_id), on_update)
+        await self._drive(None, self._config(thread_id, metadata), on_update)
         return await self.view(thread_id)

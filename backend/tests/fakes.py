@@ -88,5 +88,7 @@ class FakeLLM:
         if isinstance(response, Exception):
             raise response
         if isinstance(response, Callable):
-            return response(system, user)
-        return response
+            response = response(system, user)
+        # A real LLM returns a NEW object per call. Agents may adjust the object they get
+        # (e.g. drop invalid citations), so never hand out a shared instance.
+        return response.model_copy(deep=True) if isinstance(response, BaseModel) else response
