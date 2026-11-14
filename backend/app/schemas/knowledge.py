@@ -15,7 +15,11 @@ class SearchRequest(BaseModel):
     query: QueryText
     top_k: int | None = Field(default=None, ge=1, le=20)
     document_types: list[DocumentType] = Field(default_factory=list)
-    rewrite: bool = Field(default=True, description="Expand the query with an LLM (if set up).")
+    # Off by default for interactive search: on our eval set rewriting added ~4 s per query
+    # for a small recall gain (docs/RAG_EVALUATION.md). /ask and the agents do rewrite.
+    rewrite: bool = Field(
+        default=False, description="Expand the query with the LLM first (slower, higher recall)."
+    )
     rerank: bool = Field(default=True, description="Rerank candidates with a cross-encoder.")
     mode: Literal["hybrid", "dense", "sparse"] = "hybrid"
 

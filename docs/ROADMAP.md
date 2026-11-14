@@ -33,10 +33,11 @@ Phases 1+ need services running locally on Windows:
 - **PostgreSQL 17** — installed via `winget install PostgreSQL.PostgreSQL.17`, runs as the
   `postgresql-17` Windows service. App role `adgenius` owns databases `adgenius` (dev) and
   `adgenius_test` (wiped by every test run).
-- **Redis** — Memurai Developer (Redis-compatible Windows service, port 6379):
-  `winget install --id Memurai.MemuraiDeveloper`. Its MSI fails on this machine with error
-  1603 ("Failed to create temp directory, error 5") — still unresolved. The Celery worker was
-  verified end-to-end with kombu's filesystem broker instead.
+- **Redis** — Memurai's MSI fails on this machine (error 1603). Portable Redis 5.0.14
+  (tporadowski build) runs from `%USERPROFILE%\redis` via `start-redis.ps1` (localhost only,
+  `noeviction`). It serves the API and readiness checks, but **current Celery/kombu needs
+  Redis ≥ 6.2** (its Lua scripts fail on 5.x), so the worker needs a newer Redis build —
+  pending a decision. redis-py is pinned `<8` because v8 requires RESP3 (Redis ≥ 6).
 - **Qdrant 1.20** — Windows binary in `%USERPROFILE%\qdrant`; start it with
   `powershell -File $env:USERPROFILE\qdrant\start-qdrant.ps1` (localhost only, dashboard at
   http://127.0.0.1:6333/dashboard).

@@ -51,6 +51,7 @@ CONFIGS = [
     Config("sparse (BM25) only", "sparse"),
     Config("hybrid (RRF)", "hybrid"),
     Config("hybrid + rerank", "hybrid", rerank=True),
+    Config("hybrid + rewrite", "hybrid", rewrite=True),
     Config("hybrid + rewrite + rerank", "hybrid", rerank=True, rewrite=True),
 ]
 

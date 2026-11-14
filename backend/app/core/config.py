@@ -75,7 +75,7 @@ class Settings(BaseSettings):
 
     # ---------- LLM (Google Gemini, free AI Studio tier) ----------
     google_api_key: SecretStr | None = None  # without it, LLM features degrade gracefully
-    llm_model: str = "gemini-2.5-flash"
+    llm_model: str = "gemini-3.8-flash"
     llm_temperature: float = Field(default=0.2, ge=0, le=2)
     llm_timeout_seconds: int = Field(default=60, ge=1)
     llm_max_retries: int = Field(default=2, ge=0)
