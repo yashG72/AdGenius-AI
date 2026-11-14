@@ -35,3 +35,6 @@ uploads/
 .DS_Store
 Thumbs.db
 desktop.ini
+
+# Celery filesystem-broker artifacts (local testing)
+control/
