@@ -5,6 +5,8 @@ from fastapi import APIRouter
 from app.api.v1.routes import (
     auth,
     brands,
+    campaign_runs,
+    campaigns,
     documents,
     health,
     knowledge,
@@ -28,3 +30,5 @@ api_router.include_router(brands.router)
 api_router.include_router(documents.router)
 api_router.include_router(knowledge.router)
 api_router.include_router(research.router)
+api_router.include_router(campaigns.router)
+api_router.include_router(campaign_runs.router)

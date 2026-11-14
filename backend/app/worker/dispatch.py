@@ -22,6 +22,18 @@ def enqueue_ingestion(document_id: uuid.UUID, *, force: bool = False) -> bool:
         return False
 
 
+def enqueue_campaign_run(run_id: uuid.UUID) -> bool:
+    """Queue one lifecycle step of a campaign run (start / resume / continue)."""
+    from app.worker.tasks import execute_campaign_run_task
+
+    try:
+        execute_campaign_run_task.apply_async(args=[str(run_id)], retry=False)
+        return True
+    except Exception:
+        logger.exception("Could not enqueue campaign run %s", run_id)
+        return False
+
+
 def enqueue_cleanup(document_ids: list[uuid.UUID], *, brand_id: uuid.UUID | None = None) -> bool:
     from app.worker.tasks import cleanup_documents_task
 

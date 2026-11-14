@@ -22,7 +22,7 @@ from pathlib import Path
 
 from app.agents.checkpointer import postgres_checkpointer
 from app.agents.context import brand_snapshot
-from app.agents.deps import AgentDeps
+from app.agents.factory import live_agent_deps
 from app.agents.nodes.approval import ConceptDecision
 from app.agents.runner import CampaignWorkflow, RunView
 from app.agents.schemas import CampaignBrief
@@ -30,16 +30,7 @@ from app.core.aio import run_async
 from app.core.config import get_settings
 from app.core.tracing import configure_tracing
 from app.db.session import SessionFactory, engine
-from app.ingestion.embeddings import get_embedder
-from app.ingestion.vector_store import create_qdrant_client
-from app.llm.client import get_llm
 from app.models import Brand
-from app.rag.reranker import get_reranker
-from app.rag.retriever import HybridRetriever
-from app.rag.service import RagService
-from app.research.cache import get_redis
-from app.research.competitor import CompetitorResearchService
-from app.research.web_search import get_web_search_service
 
 
 def print_view(view: RunView) -> None:
@@ -85,79 +76,53 @@ def print_view(view: RunView) -> None:
         )
 
 
-async def build_workflow(session, saver) -> tuple[CampaignWorkflow, object]:
-    settings = get_settings()
-    llm = get_llm()
-    if llm is None:
-        sys.exit("GOOGLE_API_KEY is not set - the agents need an LLM.")
-    qdrant = create_qdrant_client(settings)
-    knowledge = RagService(
-        session=session,
-        retriever=HybridRetriever(qdrant, settings.qdrant_collection, get_embedder()),
-        reranker=get_reranker(),
-        llm=llm,
-        settings=settings,
-    )
-    search = get_web_search_service()
-    competitor = CompetitorResearchService(search, llm, settings) if search else None
-    deps = AgentDeps(
-        llm=llm, settings=settings, knowledge=knowledge, competitor_researcher=competitor
-    )
-    return CampaignWorkflow(deps, saver), qdrant
-
-
 async def main(args: argparse.Namespace) -> dict | None:
     settings = get_settings()
     configure_tracing(settings)
     try:
         async with (
             SessionFactory() as session,
+            SessionFactory() as knowledge_session,
             postgres_checkpointer(settings.database_url) as saver,
+            live_agent_deps(knowledge_session, settings) as deps,
         ):
-            workflow, qdrant = await build_workflow(session, saver)
-            try:
-                if args.command == "start":
-                    brand = await session.get(Brand, uuid.UUID(args.brand_id))
-                    if brand is None or brand.deleted_at is not None:
-                        sys.exit("Brand not found.")
-                    brief = CampaignBrief.model_validate(
-                        {**args.brief_data, "brand_id": args.brand_id}
+            workflow = CampaignWorkflow(deps, saver)
+            if args.command == "start":
+                brand = await session.get(Brand, uuid.UUID(args.brand_id))
+                if brand is None or brand.deleted_at is not None:
+                    sys.exit("Brand not found.")
+                brief = CampaignBrief.model_validate({**args.brief_data, "brand_id": args.brand_id})
+                thread = args.thread or str(uuid.uuid4())
+                print(f"starting run {thread} for brand {brand.name} ...")
+                view = await workflow.start(thread, brief, brand_snapshot(brand))
+                approve = (
+                    view.pending_approval["recommended_concept_id"]
+                    if args.auto_approve and view.pending_approval
+                    else args.approve
+                )
+                if approve and view.status == "awaiting_concept_approval":
+                    print_view(view)
+                    print(f"\napproving {approve} and producing the campaign ...")
+                    view = await workflow.resume(
+                        thread, ConceptDecision(action="approve", concept_id=approve)
                     )
-                    thread = args.thread or str(uuid.uuid4())
-                    print(f"starting run {thread} for brand {brand.name} ...")
-                    view = await workflow.start(thread, brief, brand_snapshot(brand))
-                    approve = (
-                        view.pending_approval["recommended_concept_id"]
-                        if args.auto_approve and view.pending_approval
-                        else args.approve
-                    )
-                    if approve and view.status == "awaiting_concept_approval":
-                        print_view(view)
-                        print(f"\napproving {approve} and producing the campaign ...")
-                        view = await workflow.resume(
-                            thread, ConceptDecision(action="approve", concept_id=approve)
-                        )
-                elif args.command == "resume":
-                    decision = (
-                        ConceptDecision(action="approve", concept_id=args.approve)
-                        if args.approve
-                        else ConceptDecision(action="reject", feedback=args.reject)
-                    )
-                    view = await workflow.resume(args.thread, decision)
-                elif args.command == "retry":
-                    print(f"retrying run {args.thread} from its last checkpoint ...")
-                    view = await workflow.retry(args.thread)
-                else:
-                    view = await workflow.view(args.thread)
+            elif args.command == "resume":
+                decision = (
+                    ConceptDecision(action="approve", concept_id=args.approve)
+                    if args.approve
+                    else ConceptDecision(action="reject", feedback=args.reject)
+                )
+                view = await workflow.resume(args.thread, decision)
+            elif args.command == "retry":
+                print(f"retrying run {args.thread} from its last checkpoint ...")
+                view = await workflow.retry(args.thread)
+            else:
+                view = await workflow.view(args.thread)
 
-                print_view(view)
-                return view.values.get("final")
-            finally:
-                await qdrant.close()
+            print_view(view)
+            return view.values.get("final")
     finally:
         await engine.dispose()
-        if get_redis.cache_info().currsize:
-            await get_redis().aclose()
 
 
 def cli() -> None:

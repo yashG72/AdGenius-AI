@@ -5,8 +5,7 @@ Specialized AI agents research a brand (RAG over uploaded documents) and its com
 (live web search), develop creative concepts, write scripts, build storyboards with
 image-generation prompts, and critique the result before a human approves it.
 
-> **Status:** Phase 7 (multi-agent workflow) complete. Try it:
-> `python -m scripts.run_campaign start --brand-id <uuid> --brief scripts/examples/mano_brief.json --auto-approve` See [docs/RAG_EVALUATION.md](docs/RAG_EVALUATION.md)
+> **Status:** Phase 8 (campaigns API, runs, approvals, live events) complete. See [docs/RAG_EVALUATION.md](docs/RAG_EVALUATION.md)
 > for how retrieval settings were chosen. See [docs/ROADMAP.md](docs/ROADMAP.md) for the phase plan.
 
 ## Tech stack
@@ -36,6 +35,7 @@ AdGenius-AI/
 │   │   ├── llm/             Structured LLM client (Gemini via LangChain)
 │   │   ├── research/        Live web research (Tavily), caching, competitor reports
 │   │   ├── agents/          LangGraph multi-agent workflow (6 agents, checkpoints)
+│   │   ├── campaigns/       Worker-side run execution + live progress recording
 │   │   ├── api/             HTTP layer (deps + versioned routers)
 │   │   └── schemas/         Pydantic request/response models
 │   ├── alembic/             Database migrations
@@ -104,6 +104,21 @@ A test (`test_migrations_match_models`) fails if a model changes without a match
 - Users only see organizations (and their brands) they belong to; everything else is `404`.
 - Organization-scoped collections take `?organization_id=...` (e.g. `GET /brands`).
 - Deleting a brand is a soft delete (history is kept; it disappears from the API).
+
+### Campaign flow
+
+```
+POST /campaigns                         create (brief stored on the campaign)
+POST /campaigns/{id}/generate           -> run v1 (queued; the worker runs the agents)
+GET  /campaign-runs/{run_id}/events     live SSE: agent steps, status changes, end
+GET  /campaign-runs/{run_id}            status, trace, pending approval, output versions
+POST /approvals/{id}/approve            {"concept_id": "C2"}   (or /reject {"feedback": ...})
+GET  /campaign-runs/{run_id}/script     also /concepts /storyboard /evaluation (?version=n)
+POST /campaign-runs/{run_id}/regenerate new version from the current brief (old kept)
+POST /campaign-runs/{run_id}/retry      continue a failed run from its last checkpoint
+```
+
+The CLI (`python -m scripts.run_campaign`) drives the same workflow without the API.
 - Every response carries an `X-Request-ID` header (used to correlate logs).
 - Every error has the same shape:
 

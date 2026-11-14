@@ -22,9 +22,9 @@ VideoFormat = Literal["9:16", "16:9", "1:1", "4:5"]
 # ---------- Campaign brief (user input) ----------
 
 
-class CampaignBrief(BaseModel):
-    brand_id: uuid.UUID
-    campaign_name: ShortText
+class BriefFields(BaseModel):
+    """The creative brief itself (stored on the campaign; snapshotted on every run)."""
+
     objective: Text = Field(description="Campaign objective, e.g. brand awareness.")
     product_description: Text | None = None
     marketing_objective: Text | None = None
@@ -40,9 +40,23 @@ class CampaignBrief(BaseModel):
     competitor_research: bool = True
     competitor_focus: ShortText | None = None
 
-    @field_validator("campaign_name", "objective", "target_audience")
+    @field_validator("objective", "target_audience")
     @classmethod
     def _not_blank(cls, value: str) -> str:
+        if not value.strip():
+            raise ValueError("must not be blank")
+        return value
+
+
+class CampaignBrief(BriefFields):
+    """What the workflow receives: the brief plus which brand and campaign it is for."""
+
+    brand_id: uuid.UUID
+    campaign_name: ShortText
+
+    @field_validator("campaign_name")
+    @classmethod
+    def _name_not_blank(cls, value: str) -> str:
         if not value.strip():
             raise ValueError("must not be blank")
         return value

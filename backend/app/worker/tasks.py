@@ -12,6 +12,7 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
 from sqlalchemy.pool import NullPool
 
+from app.core.aio import run_async
 from app.core.config import get_settings
 from app.core.storage import get_storage
 from app.ingestion.embeddings import get_embedder
@@ -77,6 +78,45 @@ async def _cleanup(document_ids: list[uuid.UUID], brand_id: uuid.UUID | None) ->
     finally:
         await client.close()
         await engine.dispose()
+
+
+async def _execute_campaign_run(run_id: uuid.UUID) -> str:
+    from app.agents.checkpointer import postgres_checkpointer
+    from app.agents.factory import live_agent_deps
+    from app.agents.runner import CampaignWorkflow
+    from app.campaigns.executor import execute_run
+
+    settings = get_settings()
+    engine = create_async_engine(settings.database_url, poolclass=NullPool)
+    sessions = async_sessionmaker(engine, expire_on_commit=False)
+    try:
+        # Three sessions: run bookkeeping, live progress recording, and the Brand
+        # Research agent's document search (which runs in parallel with other work).
+        async with (
+            sessions() as session,
+            sessions() as recorder_session,
+            sessions() as knowledge_session,
+            postgres_checkpointer(settings.database_url) as saver,
+            live_agent_deps(knowledge_session, settings) as deps,
+        ):
+            run = await execute_run(
+                session, run_id, CampaignWorkflow(deps, saver), recorder_session=recorder_session
+            )
+            return run.status.value
+    finally:
+        await engine.dispose()
+
+
+@celery_app.task(
+    name="campaigns.execute",
+    # Agent workflows are long (several LLM calls + web research), so allow more time.
+    soft_time_limit=30 * 60,
+    time_limit=35 * 60,
+    max_retries=0,  # failures are recorded on the run; retry is an explicit API action
+)
+def execute_campaign_run_task(run_id: str) -> str:
+    # run_async (not asyncio.run): psycopg's async mode needs a SelectorEventLoop on Windows.
+    return run_async(_execute_campaign_run(uuid.UUID(run_id)))
 
 
 @celery_app.task(

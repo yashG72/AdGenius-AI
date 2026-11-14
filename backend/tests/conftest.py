@@ -92,7 +92,11 @@ def storage(tmp_path: Path) -> LocalFileStorage:
 @pytest.fixture(autouse=True)
 def queued(monkeypatch: pytest.MonkeyPatch) -> dict[str, list]:
     """Record background jobs instead of sending them to Redis."""
-    jobs: dict[str, list] = {"ingest": [], "cleanup": []}
+    jobs: dict[str, list] = {"ingest": [], "cleanup": [], "campaign": []}
+
+    def fake_campaign(run_id):
+        jobs["campaign"].append(run_id)
+        return True
 
     def fake_ingest(document_id, *, force=False):
         jobs["ingest"].append((document_id, force))
@@ -104,6 +108,7 @@ def queued(monkeypatch: pytest.MonkeyPatch) -> dict[str, list]:
 
     monkeypatch.setattr(dispatch, "enqueue_ingestion", fake_ingest)
     monkeypatch.setattr(dispatch, "enqueue_cleanup", fake_cleanup)
+    monkeypatch.setattr(dispatch, "enqueue_campaign_run", fake_campaign)
     return jobs
 
 

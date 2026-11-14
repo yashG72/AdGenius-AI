@@ -115,6 +115,11 @@ class Settings(BaseSettings):
     agent_retry_initial_seconds: float = Field(default=2.0, ge=0)
     agent_brand_context_chunks: int = Field(default=12, ge=1, le=40)
 
+    # ---------- Live run events (Server-Sent Events) ----------
+    sse_poll_interval_seconds: float = Field(default=1.0, gt=0)
+    sse_heartbeat_seconds: float = Field(default=15.0, gt=0)
+    sse_max_stream_seconds: float = Field(default=900.0, gt=0)  # client reconnects after
+
     # ---------- Tracing (optional) ----------
     langsmith_api_key: SecretStr | None = None
     langsmith_project: str = "adgenius"
