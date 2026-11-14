@@ -17,9 +17,12 @@ from httpx import ASGITransport, AsyncClient
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 from sqlalchemy.pool import NullPool
 
+from app.api.v1.routes.health import get_readiness_checks
 from app.core.config import get_settings
+from app.core.storage import LocalFileStorage, get_storage
 from app.db.session import get_db_session
 from app.main import create_app
+from app.worker import dispatch
 
 BACKEND_DIR = Path(__file__).resolve().parents[1]
 
@@ -76,7 +79,33 @@ async def db_session(migrated_database: str) -> AsyncIterator[AsyncSession]:
 
 
 @pytest.fixture
-async def client(db_session: AsyncSession) -> AsyncIterator[AsyncClient]:
+def storage(tmp_path: Path) -> LocalFileStorage:
+    """Uploaded files go to a per-test temporary folder."""
+    return LocalFileStorage(tmp_path / "storage")
+
+
+@pytest.fixture(autouse=True)
+def queued(monkeypatch: pytest.MonkeyPatch) -> dict[str, list]:
+    """Record background jobs instead of sending them to Redis."""
+    jobs: dict[str, list] = {"ingest": [], "cleanup": []}
+
+    def fake_ingest(document_id, *, force=False):
+        jobs["ingest"].append((document_id, force))
+        return True
+
+    def fake_cleanup(document_ids, *, brand_id=None):
+        jobs["cleanup"].append((list(document_ids), brand_id))
+        return True
+
+    monkeypatch.setattr(dispatch, "enqueue_ingestion", fake_ingest)
+    monkeypatch.setattr(dispatch, "enqueue_cleanup", fake_cleanup)
+    return jobs
+
+
+@pytest.fixture
+async def client(
+    db_session: AsyncSession, storage: LocalFileStorage
+) -> AsyncIterator[AsyncClient]:
     """HTTP client calling the app in-process, with the DB swapped for the test session."""
     app = create_app()
 
@@ -84,6 +113,8 @@ async def client(db_session: AsyncSession) -> AsyncIterator[AsyncClient]:
         yield db_session
 
     app.dependency_overrides[get_db_session] = override_get_db_session
+    app.dependency_overrides[get_storage] = lambda: storage
+    app.dependency_overrides[get_readiness_checks] = lambda: {}  # no Redis/Qdrant in tests
 
     transport = ASGITransport(app=app)
     async with AsyncClient(transport=transport, base_url="http://test") as http_client:

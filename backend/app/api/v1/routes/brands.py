@@ -7,7 +7,7 @@ deleting a brand requires the admin role.
 import uuid
 from typing import Annotated
 
-from fastapi import APIRouter, Query, status
+from fastapi import APIRouter, BackgroundTasks, Query, status
 
 from app.api.deps import CurrentUserDep, DbSessionDep, OrgMemberDep
 from app.core.exceptions import PermissionDeniedError
@@ -15,6 +15,7 @@ from app.models import MembershipRole
 from app.schemas.brand import BrandCreate, BrandRead, BrandSummary, BrandUpdate
 from app.schemas.common import PageResponse
 from app.services import brand_service, organization_service
+from app.worker import dispatch
 
 router = APIRouter(prefix="/brands", tags=["brands"])
 
@@ -61,8 +62,12 @@ async def update_brand(
 
 
 @router.delete("/{brand_id}", status_code=status.HTTP_204_NO_CONTENT)
-async def delete_brand(brand_id: uuid.UUID, user: CurrentUserDep, session: DbSessionDep) -> None:
+async def delete_brand(
+    brand_id: uuid.UUID, user: CurrentUserDep, session: DbSessionDep, background: BackgroundTasks
+) -> None:
     brand, membership = await brand_service.get_brand_for_user(session, brand_id, user.id)
     if not membership.role.at_least(MembershipRole.ADMIN):
         raise PermissionDeniedError("Deleting a brand requires the admin role.")
     await brand_service.delete_brand(session, brand)
+    # Remove its vectors + stored files in the background (queued after the response).
+    background.add_task(dispatch.enqueue_cleanup, [], brand_id=brand.id)

@@ -5,7 +5,7 @@ Specialized AI agents research a brand (RAG over uploaded documents) and its com
 (live web search), develop creative concepts, write scripts, build storyboards with
 image-generation prompts, and critique the result before a human approves it.
 
-> **Status:** Phase 3 (brand management) complete. See [docs/ROADMAP.md](docs/ROADMAP.md) for the phase plan.
+> **Status:** Phase 4 (document ingestion) complete. See [docs/ROADMAP.md](docs/ROADMAP.md) for the phase plan.
 
 ## Tech stack
 
@@ -28,6 +28,8 @@ AdGenius-AI/
 │   │   ├── db/              SQLAlchemy base, mixins, engine/session
 │   │   ├── models/          ORM models (one file per table)
 │   │   ├── services/        Business logic (auth, organizations, ...)
+│   │   ├── ingestion/       Document pipeline: validate, extract, chunk, embed, index
+│   │   ├── worker/          Celery app, background tasks, dispatch helpers
 │   │   ├── api/             HTTP layer (deps + versioned routers)
 │   │   └── schemas/         Pydantic request/response models
 │   ├── alembic/             Database migrations
@@ -59,7 +61,19 @@ pytest                              # run tests (resets adgenius_test)
 ruff check .                        # lint
 ```
 
-Health checks: `GET /api/v1/health` (liveness) and `GET /api/v1/health/ready` (database).
+Health checks: `GET /api/v1/health` (liveness) and `GET /api/v1/health/ready`
+(database, Redis, Qdrant).
+
+### Background services (three terminals)
+
+```powershell
+powershell -File $env:USERPROFILE\qdrant\start-qdrant.ps1                # 1. vector DB
+uvicorn app.main:app --reload                                            # 2. API
+celery -A app.worker.celery_app worker --pool=solo --loglevel=info       # 3. worker
+```
+
+Memurai (Redis) runs as a Windows service, so it needs no terminal. On Windows, Celery
+needs `--pool=solo`. Uploaded documents stay `pending` until a worker picks them up.
 
 ### Database migrations
 

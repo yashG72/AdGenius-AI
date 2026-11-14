@@ -8,6 +8,10 @@ requires-python = ">=3.11"
 testpaths = ["tests"]
 pythonpath = ["."]
 addopts = "-ra"
+filterwarnings = [
+    # In-memory Qdrant (used in tests) ignores payload indexes; the real server uses them.
+    "ignore:Payload indexes have no effect in the local Qdrant:UserWarning",
+]
 
 [tool.ruff]
 line-length = 100

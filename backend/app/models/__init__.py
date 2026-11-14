@@ -6,6 +6,7 @@ migrations, and a model that is never imported is invisible to it.
 
 from app.db.base import Base
 from app.models.brand import Brand
+from app.models.document import BrandDocument, DocumentFormat, DocumentStatus, DocumentType
 from app.models.membership import Membership, MembershipRole
 from app.models.organization import Organization
 from app.models.refresh_token import RefreshToken
@@ -14,6 +15,10 @@ from app.models.user import User
 __all__ = [
     "Base",
     "Brand",
+    "BrandDocument",
+    "DocumentFormat",
+    "DocumentStatus",
+    "DocumentType",
     "Membership",
     "MembershipRole",
     "Organization",

@@ -7,12 +7,12 @@ ever loaded together with proof that the current user belongs to its organizatio
 import uuid
 from datetime import UTC, datetime
 
-from sqlalchemy import Select, func, select
+from sqlalchemy import Select, func, select, update
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.exceptions import ConflictError, NotFoundError
-from app.models import Brand, Membership, User
+from app.models import Brand, BrandDocument, DocumentStatus, Membership, User
 from app.schemas.brand import BrandCreate, BrandUpdate
 
 DUPLICATE_NAME = "A brand with this name already exists in this organization."
@@ -128,6 +128,18 @@ async def update_brand(session: AsyncSession, brand: Brand, data: BrandUpdate) -
 
 
 async def delete_brand(session: AsyncSession, brand: Brand) -> None:
-    """Soft delete. (Phase 4 will also schedule removal of its document vectors.)"""
-    brand.deleted_at = datetime.now(UTC)
+    """Soft delete the brand and all its documents.
+
+    The caller queues the background cleanup of vectors and stored files.
+    """
+    now = datetime.now(UTC)
+    brand.deleted_at = now
+    await session.execute(
+        update(BrandDocument)
+        .where(
+            BrandDocument.brand_id == brand.id,
+            BrandDocument.status != DocumentStatus.DELETED,
+        )
+        .values(status=DocumentStatus.DELETED, deleted_at=now)
+    )
     await session.commit()

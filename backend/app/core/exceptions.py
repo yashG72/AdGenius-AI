@@ -56,6 +56,14 @@ class ConflictError(AppError):
     status_code, code, message = 409, "conflict", "Resource conflict."
 
 
+class PayloadTooLargeError(AppError):
+    status_code, code, message = 413, "payload_too_large", "The uploaded file is too large."
+
+
+class UnsupportedMediaTypeError(AppError):
+    status_code, code, message = 415, "unsupported_media_type", "Unsupported file type."
+
+
 class ServiceUnavailableError(AppError):
     status_code, code, message = 503, "service_unavailable", "A required service is unavailable."
 

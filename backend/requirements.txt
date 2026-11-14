@@ -15,3 +15,13 @@ alembic>=1.14
 pyjwt>=2.10
 argon2-cffi>=23.1
 email-validator>=2.2
+
+# Documents & ingestion (phase 4)
+python-multipart>=0.0.18     # multipart/form-data file uploads
+celery[redis]>=5.4           # background jobs (Redis/Memurai as broker)
+qdrant-client>=1.12          # vector database client
+fastembed>=0.5               # local, free embeddings (dense + sparse/BM25), runs on CPU
+pymupdf>=1.25                # PDF text extraction
+python-docx>=1.1             # DOCX text extraction
+langchain-text-splitters>=0.3
+tiktoken>=0.8                # token counting for chunk sizes
