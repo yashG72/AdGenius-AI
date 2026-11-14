@@ -7,8 +7,8 @@ The project is built one phase at a time. Each phase ends with passing tests and
 | 0 | Repo setup, backend foundation (config, logging, request IDs, error envelope, health check, tests) | FastAPI, Pydantic Settings, pytest | ✅ Done |
 | 1 | Database layer: async SQLAlchemy, base models (UUID, timestamps), Alembic migrations, organizations/users/memberships tables, readiness check | PostgreSQL 17, SQLAlchemy 2, Alembic | ✅ Done |
 | 2 | Auth & organizations: register/login/logout, JWT access tokens, refresh-token rotation with reuse detection, profile & password change, organization + member APIs, RBAC (owner/admin/member) | argon2, PyJWT | ✅ Done |
-| 3 | Brand management CRUD with org-level isolation | FastAPI, SQLAlchemy | ⏳ Next |
-| 4 | Document upload + async ingestion pipeline (validate → store → extract → chunk → embed → index) | Celery, Redis, PyMuPDF, python-docx, Qdrant | |
+| 3 | Brand management: full profile (JSONB for structured fields), validation, pagination/search, soft delete, org-level isolation | FastAPI, SQLAlchemy, JSONB | ✅ Done |
+| 4 | Document upload + async ingestion pipeline (validate → store → extract → chunk → embed → index) | Celery, Redis, PyMuPDF, python-docx, Qdrant | ⏳ Next |
 | 5 | Advanced RAG engine: query rewriting, hybrid search, fusion, reranking, citations, retrieval eval | LangChain, Qdrant | |
 | 6 | Live web research tool with cached, cited results | Tavily | |
 | 7 | Multi-agent workflow: 6 agents, parallel research, human approval interrupt, critic loop | LangGraph, Postgres checkpointer | |

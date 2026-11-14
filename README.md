@@ -5,7 +5,7 @@ Specialized AI agents research a brand (RAG over uploaded documents) and its com
 (live web search), develop creative concepts, write scripts, build storyboards with
 image-generation prompts, and critique the result before a human approves it.
 
-> **Status:** Phase 2 (auth & organizations) complete. See [docs/ROADMAP.md](docs/ROADMAP.md) for the phase plan.
+> **Status:** Phase 3 (brand management) complete. See [docs/ROADMAP.md](docs/ROADMAP.md) for the phase plan.
 
 ## Tech stack
 
@@ -77,8 +77,10 @@ A test (`test_migrations_match_models`) fails if a model changes without a match
 - Auth: `POST /auth/login` returns an access token (15 min) and a refresh token (30 days).
   Send `Authorization: Bearer <access_token>`; call `POST /auth/refresh` for a new pair
   (each refresh token works once).
-- Collections are returned as `{"items": [...]}`.
-- Users only see organizations they belong to; others get `404`.
+- Collections are returned as `{"items": [...]}`; paginated ones add `total`, `limit`, `offset`.
+- Users only see organizations (and their brands) they belong to; everything else is `404`.
+- Organization-scoped collections take `?organization_id=...` (e.g. `GET /brands`).
+- Deleting a brand is a soft delete (history is kept; it disappears from the API).
 - Every response carries an `X-Request-ID` header (used to correlate logs).
 - Every error has the same shape:
 

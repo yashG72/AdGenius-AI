@@ -34,6 +34,25 @@ async def get_membership(
     )
 
 
+async def require_membership(
+    session: AsyncSession,
+    organization_id: uuid.UUID,
+    user_id: uuid.UUID,
+    minimum: MembershipRole = MembershipRole.MEMBER,
+) -> Membership:
+    """The single tenant-access check used everywhere.
+
+    Non-members get 404 (not 403) so they cannot learn the organization exists;
+    members with too low a role get 403.
+    """
+    membership = await get_membership(session, organization_id, user_id)
+    if membership is None:
+        raise NotFoundError("Organization not found.")
+    if not membership.role.at_least(minimum):
+        raise PermissionDeniedError(f"This action requires the {minimum.value} role.")
+    return membership
+
+
 async def list_user_organizations(
     session: AsyncSession, user_id: uuid.UUID
 ) -> list[tuple[Organization, MembershipRole]]:

@@ -17,6 +17,14 @@ class ListResponse(BaseModel, Generic[T]):
     items: list[T]
 
 
+class PageResponse(ListResponse[T], Generic[T]):
+    """A page of a larger collection (offset pagination)."""
+
+    total: int
+    limit: int
+    offset: int
+
+
 class ErrorBody(BaseModel):
     code: str
     message: str

@@ -13,7 +13,7 @@ from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.config import Settings, get_settings
-from app.core.exceptions import AuthenticationError, NotFoundError, PermissionDeniedError
+from app.core.exceptions import AuthenticationError
 from app.core.security import decode_access_token
 from app.db.session import get_db_session
 from app.models import Membership, MembershipRole, User
@@ -51,31 +51,22 @@ CurrentUserDep = Annotated[User, Depends(get_current_user)]
 # ---------- Organization access (tenant isolation + RBAC) ----------
 
 
-async def get_org_membership(
-    organization_id: uuid.UUID, user: CurrentUserDep, session: DbSessionDep
-) -> Membership:
-    """The current user's membership in the organization from the URL path.
-
-    Non-members get 404 (not 403) so they cannot even learn the organization exists.
-    """
-    membership = await organization_service.get_membership(session, organization_id, user.id)
-    if membership is None:
-        raise NotFoundError("Organization not found.")
-    return membership
-
-
-OrgMemberDep = Annotated[Membership, Depends(get_org_membership)]
-
-
 def require_org_role(minimum: MembershipRole) -> Callable[..., Awaitable[Membership]]:
-    """Dependency factory: membership must have at least `minimum` role."""
+    """Dependency factory: the current user's membership in `organization_id`.
 
-    async def dependency(membership: OrgMemberDep) -> Membership:
-        if not membership.role.at_least(minimum):
-            raise PermissionDeniedError(f"This action requires the {minimum.value} role.")
-        return membership
+    `organization_id` is read from the URL path (/organizations/{organization_id}) or,
+    when not in the path, from the query string (?organization_id=...).
+    """
+
+    async def dependency(
+        organization_id: uuid.UUID, user: CurrentUserDep, session: DbSessionDep
+    ) -> Membership:
+        return await organization_service.require_membership(
+            session, organization_id, user.id, minimum
+        )
 
     return dependency
 
 
+OrgMemberDep = Annotated[Membership, Depends(require_org_role(MembershipRole.MEMBER))]
 OrgAdminDep = Annotated[Membership, Depends(require_org_role(MembershipRole.ADMIN))]
