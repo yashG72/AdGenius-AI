@@ -76,8 +76,10 @@ class Settings(BaseSettings):
     # ---------- LLM (Google Gemini, free AI Studio tier) ----------
     google_api_key: SecretStr | None = None  # without it, LLM features degrade gracefully
     llm_model: str = "gemini-3.8-flash"
+    # Used when the primary model fails (e.g. free-tier overload). Empty string disables it.
+    llm_fallback_model: str = "gemini-3.5-flash"
     llm_temperature: float = Field(default=0.2, ge=0, le=2)
-    llm_timeout_seconds: int = Field(default=60, ge=1)
+    llm_timeout_seconds: int = Field(default=120, ge=1)  # long outputs (storyboards) need room
     llm_max_retries: int = Field(default=2, ge=0)
 
     # ---------- RAG ----------
@@ -104,6 +106,18 @@ class Settings(BaseSettings):
     web_research_concurrency: int = Field(default=3, ge=1, le=10)
     web_research_max_evidence: int = Field(default=20, ge=1, le=50)
     web_snippet_max_chars: int = Field(default=1200, ge=200, le=5000)
+
+    # ---------- Multi-agent workflow ----------
+    agent_approval_threshold: float = Field(default=80, ge=0, le=100)  # Critic pass mark
+    agent_max_revisions: int = Field(default=2, ge=0, le=5)  # automatic revision rounds
+    agent_max_concept_rounds: int = Field(default=3, ge=1, le=10)  # human reject limit
+    agent_max_attempts: int = Field(default=3, ge=1, le=6)  # retries per LLM node
+    agent_retry_initial_seconds: float = Field(default=2.0, ge=0)
+    agent_brand_context_chunks: int = Field(default=12, ge=1, le=40)
+
+    # ---------- Tracing (optional) ----------
+    langsmith_api_key: SecretStr | None = None
+    langsmith_project: str = "adgenius"
 
     @model_validator(mode="after")
     def _overlap_smaller_than_chunk(self) -> "Settings":

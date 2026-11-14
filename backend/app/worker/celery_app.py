@@ -10,6 +10,7 @@ from celery import Celery
 
 from app.core.config import get_settings
 from app.core.logging import configure_logging
+from app.core.tracing import configure_tracing
 
 settings = get_settings()
 
@@ -49,3 +50,4 @@ celery_app.conf.update(
 )
 
 configure_logging(settings.log_level)
+configure_tracing(settings)

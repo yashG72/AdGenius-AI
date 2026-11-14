@@ -11,8 +11,8 @@ The project is built one phase at a time. Each phase ends with passing tests and
 | 4 | Document upload + async ingestion pipeline (validate → store → extract → clean → chunk → embed dense+sparse → index), lifecycle statuses, delete & reindex | Celery, Memurai, PyMuPDF, python-docx, LangChain splitters, FastEmbed, Qdrant | ✅ Done |
 | 5 | RAG engine: LLM query rewriting, hybrid dense+BM25 search with server-side RRF fusion, live-document check, optional cross-encoder reranking, context assembly, grounded answers with validated citations, retrieval evaluation harness | LangChain, Qdrant, FastEmbed, Gemini | ✅ Done |
 | 6 | Live web research: sanitized Tavily search, Redis cache (results + query plans), credit budget, evidence-grounded competitor report with validated citations and timestamps | Tavily, Redis, Gemini | ✅ Done |
-| 7 | Multi-agent workflow: 6 agents, parallel research, human approval interrupt, critic loop | LangGraph, Postgres checkpointer | ⏳ Next |
-| 8 | Campaigns, versioned runs, approvals, outputs APIs, SSE event stream | FastAPI, Celery, SSE | |
+| 7 | Multi-agent workflow: 6 agents with structured outputs, parallel research branches, human concept-approval interrupt, critic revision loop (threshold 80, max 2 revisions, then human review), deterministic routing, retry policies, durable PostgreSQL checkpoints, execution trace, optional LangSmith, CLI runner | LangGraph, Postgres checkpointer, Gemini | ✅ Done |
+| 8 | Campaigns, versioned runs, approvals, outputs APIs, SSE event stream | FastAPI, Celery, SSE | ⏳ Next |
 | 9 | Quality evaluation dashboard data, PDF export, LangSmith tracing | LangSmith, PDF renderer | |
 | 10 | Frontend foundation: Next.js app shell, auth, dashboard, brands, documents | Next.js, TS, Tailwind, shadcn/ui, TanStack Query | |
 | 11 | Frontend campaign flow: wizard, live execution view, concept selection, script/storyboard editors, critic view | Next.js | |
@@ -28,6 +28,9 @@ The project is built one phase at a time. Each phase ends with passing tests and
 - Web research: prefer recent sources for trend queries (Tavily `time_range`) — live runs
   occasionally cite years-old articles; competitor research takes ~35–50 s, so phase 7 runs
   it inside the worker.
+- Agent workflow: the competitor-research plan cache misses between campaign runs because
+  the Campaign Manager's LLM-written research focus is part of the cache key (~6 Tavily
+  credits per run). Key the plan on brand + brief fields instead.
 
 ## Local services needed (no Docker for now)
 

@@ -30,5 +30,10 @@ tiktoken>=0.8                # token counting for chunk sizes
 langchain-core>=0.3          # prompts, messages, structured output
 langchain-google-genai>=2.0  # Gemini chat models (free AI Studio tier)
 
+# Multi-agent workflow (phase 7)
+langgraph>=0.4                          # stateful agent graphs, interrupts, checkpoints
+langgraph-checkpoint-postgres>=2.0      # durable checkpoints in PostgreSQL
+psycopg[binary,pool]>=3.2               # driver used by the LangGraph checkpointer
+
 # Live web research (phase 6)
 tavily-python>=0.5           # Tavily search API (free tier: 1,000 credits/month)

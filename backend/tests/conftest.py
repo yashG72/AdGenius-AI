@@ -18,6 +18,7 @@ from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 from sqlalchemy.pool import NullPool
 
 from app.api.v1.routes.health import get_readiness_checks
+from app.core.aio import loop_factory
 from app.core.config import get_settings
 from app.core.storage import LocalFileStorage, get_storage
 from app.db.session import get_db_session
@@ -28,9 +29,13 @@ BACKEND_DIR = Path(__file__).resolve().parents[1]
 
 
 @pytest.fixture(scope="session")
-def anyio_backend() -> str:
-    """Run async tests on asyncio (anyio's pytest plugin ships with FastAPI)."""
-    return "asyncio"
+def anyio_backend():
+    """Run async tests on asyncio (anyio's pytest plugin ships with FastAPI).
+
+    On Windows use a SelectorEventLoop - psycopg (LangGraph's Postgres checkpointer)
+    cannot run on the default Proactor loop. Same loop type the worker uses.
+    """
+    return ("asyncio", {"loop_factory": loop_factory()})
 
 
 @pytest.fixture(scope="session")

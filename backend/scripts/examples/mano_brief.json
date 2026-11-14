@@ -1,0 +1,15 @@
+{
+  "campaign_name": "MANO Campus Launch",
+  "objective": "Brand awareness",
+  "product_description": "MANO Sparkling Mango - premium low-sugar sparkling beverage",
+  "marketing_objective": "Make MANO the go-to refreshment on campus during exam season",
+  "target_audience": "College students aged 18-25",
+  "platform": "instagram",
+  "duration_seconds": 30,
+  "language": "English",
+  "tone": "Youthful, energetic and humorous",
+  "video_format": "9:16",
+  "num_concepts": 3,
+  "additional_requirements": "Feature real student moments; end on the brand tagline.",
+  "competitor_research": true
+}

@@ -17,6 +17,7 @@ from app.core.config import get_settings
 from app.core.exceptions import register_exception_handlers
 from app.core.logging import configure_logging
 from app.core.middleware import REQUEST_ID_HEADER, RequestIDMiddleware
+from app.core.tracing import configure_tracing
 from app.db.session import engine
 from app.ingestion.vector_store import get_qdrant_client
 from app.research.cache import get_redis
@@ -42,6 +43,7 @@ def create_app() -> FastAPI:
     """Application factory: builds a fully configured FastAPI instance."""
     settings = get_settings()
     configure_logging(settings.log_level)
+    configure_tracing(settings)
 
     app = FastAPI(
         title=settings.app_name,

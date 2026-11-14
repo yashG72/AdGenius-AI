@@ -5,7 +5,8 @@ Specialized AI agents research a brand (RAG over uploaded documents) and its com
 (live web search), develop creative concepts, write scripts, build storyboards with
 image-generation prompts, and critique the result before a human approves it.
 
-> **Status:** Phase 6 (live web research) complete. See [docs/RAG_EVALUATION.md](docs/RAG_EVALUATION.md)
+> **Status:** Phase 7 (multi-agent workflow) complete. Try it:
+> `python -m scripts.run_campaign start --brand-id <uuid> --brief scripts/examples/mano_brief.json --auto-approve` See [docs/RAG_EVALUATION.md](docs/RAG_EVALUATION.md)
 > for how retrieval settings were chosen. See [docs/ROADMAP.md](docs/ROADMAP.md) for the phase plan.
 
 ## Tech stack
@@ -34,6 +35,7 @@ AdGenius-AI/
 │   │   ├── rag/             Retrieval, rewriting, reranking, grounded answers, metrics
 │   │   ├── llm/             Structured LLM client (Gemini via LangChain)
 │   │   ├── research/        Live web research (Tavily), caching, competitor reports
+│   │   ├── agents/          LangGraph multi-agent workflow (6 agents, checkpoints)
 │   │   ├── api/             HTTP layer (deps + versioned routers)
 │   │   └── schemas/         Pydantic request/response models
 │   ├── alembic/             Database migrations
