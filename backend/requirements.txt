@@ -18,10 +18,7 @@ email-validator>=2.2
 
 # Documents & ingestion (phase 4)
 python-multipart>=0.0.18     # multipart/form-data file uploads
-celery[redis]>=5.4           # background jobs (Redis as broker)
-# redis-py 8 opens connections with HELLO 3 (RESP3), which Redis < 6 rejects. Local dev
-# uses the Redis 5 Windows build, so stay on the RESP2-default client. Lift at deployment.
-redis>=5.2,<8
+celery[redis]>=5.4           # background jobs (Redis >= 6.2 as broker; local dev uses Redis 8)
 qdrant-client>=1.12          # vector database client
 fastembed>=0.5               # local, free embeddings (dense + sparse/BM25), runs on CPU
 pymupdf>=1.25                # PDF text extraction

@@ -9,7 +9,7 @@ The project is built one phase at a time. Each phase ends with passing tests and
 | 2 | Auth & organizations: register/login/logout, JWT access tokens, refresh-token rotation with reuse detection, profile & password change, organization + member APIs, RBAC (owner/admin/member) | argon2, PyJWT | ✅ Done |
 | 3 | Brand management: full profile (JSONB for structured fields), validation, pagination/search, soft delete, org-level isolation | FastAPI, SQLAlchemy, JSONB | ✅ Done |
 | 4 | Document upload + async ingestion pipeline (validate → store → extract → clean → chunk → embed dense+sparse → index), lifecycle statuses, delete & reindex | Celery, Memurai, PyMuPDF, python-docx, LangChain splitters, FastEmbed, Qdrant | ✅ Done |
-| 5 | RAG engine: LLM query rewriting, hybrid dense+BM25 search with server-side RRF fusion, live-document check, optional cross-encoder reranking, context assembly, grounded answers with validated citations, retrieval evaluation harness | LangChain, Qdrant, FastEmbed, Gemini | ✅ Done (live LLM test pending API key) |
+| 5 | RAG engine: LLM query rewriting, hybrid dense+BM25 search with server-side RRF fusion, live-document check, optional cross-encoder reranking, context assembly, grounded answers with validated citations, retrieval evaluation harness | LangChain, Qdrant, FastEmbed, Gemini | ✅ Done |
 | 6 | Live web research tool with cached, cited results | Tavily | ⏳ Next |
 | 7 | Multi-agent workflow: 6 agents, parallel research, human approval interrupt, critic loop | LangGraph, Postgres checkpointer | |
 | 8 | Campaigns, versioned runs, approvals, outputs APIs, SSE event stream | FastAPI, Celery, SSE | |
@@ -33,11 +33,10 @@ Phases 1+ need services running locally on Windows:
 - **PostgreSQL 17** — installed via `winget install PostgreSQL.PostgreSQL.17`, runs as the
   `postgresql-17` Windows service. App role `adgenius` owns databases `adgenius` (dev) and
   `adgenius_test` (wiped by every test run).
-- **Redis** — Memurai's MSI fails on this machine (error 1603). Portable Redis 5.0.14
-  (tporadowski build) runs from `%USERPROFILE%\redis` via `start-redis.ps1` (localhost only,
-  `noeviction`). It serves the API and readiness checks, but **current Celery/kombu needs
-  Redis ≥ 6.2** (its Lua scripts fail on 5.x), so the worker needs a newer Redis build —
-  pending a decision. redis-py is pinned `<8` because v8 requires RESP3 (Redis ≥ 6).
+- **Redis 8.10.3** — portable community Windows build ([redis-windows](https://github.com/redis-windows/redis-windows))
+  in `%USERPROFILE%\redis8`; start with `powershell -File $env:USERPROFILE\redis8\start-redis.ps1`
+  (localhost only, `noeviction` so queued jobs are never dropped). Memurai's MSI fails on this
+  machine (error 1603), and Redis 5.x is too old for current Celery (needs ≥ 6.2).
 - **Qdrant 1.20** — Windows binary in `%USERPROFILE%\qdrant`; start it with
   `powershell -File $env:USERPROFILE\qdrant\start-qdrant.ps1` (localhost only, dashboard at
   http://127.0.0.1:6333/dashboard).

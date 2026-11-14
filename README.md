@@ -72,13 +72,14 @@ Health checks: `GET /api/v1/health` (liveness) and `GET /api/v1/health/ready`
 ### Background services (three terminals)
 
 ```powershell
-powershell -File $env:USERPROFILE\qdrant\start-qdrant.ps1                # 1. vector DB
-uvicorn app.main:app --reload                                            # 2. API
-celery -A app.worker.celery_app worker --pool=solo --loglevel=info       # 3. worker
+powershell -File $env:USERPROFILE\redis8\start-redis.ps1                 # 1. Redis (job queue)
+powershell -File $env:USERPROFILE\qdrant\start-qdrant.ps1                # 2. vector DB
+uvicorn app.main:app --reload                                            # 3. API
+celery -A app.worker.celery_app worker --pool=solo --loglevel=info       # 4. worker
 ```
 
-Memurai (Redis) runs as a Windows service, so it needs no terminal. On Windows, Celery
-needs `--pool=solo`. Uploaded documents stay `pending` until a worker picks them up.
+PostgreSQL runs as a Windows service. On Windows, Celery needs `--pool=solo`. Uploaded
+documents stay `pending` until a worker picks them up.
 
 ### Database migrations
 
