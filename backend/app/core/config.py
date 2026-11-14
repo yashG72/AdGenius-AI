@@ -29,6 +29,15 @@ class Settings(BaseSettings):
     # ---------- HTTP ----------
     cors_origins: list[str] = ["http://localhost:3000"]
 
+    # ---------- Database ----------
+    # Async driver URL, e.g. postgresql+asyncpg://user:pass@localhost:5432/adgenius
+    database_url: str = "postgresql+asyncpg://adgenius:adgenius@localhost:5432/adgenius"
+    # Separate database used only by the test suite (it gets wiped on every run).
+    test_database_url: str | None = None
+    database_echo: bool = False  # log every SQL statement (noisy; debugging only)
+    database_pool_size: int = 10
+    database_max_overflow: int = 20
+
 
 @lru_cache
 def get_settings() -> Settings:

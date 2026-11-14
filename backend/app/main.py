@@ -17,17 +17,19 @@ from app.core.config import get_settings
 from app.core.exceptions import register_exception_handlers
 from app.core.logging import configure_logging
 from app.core.middleware import REQUEST_ID_HEADER, RequestIDMiddleware
+from app.db.session import engine
 
 logger = logging.getLogger(__name__)
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI) -> AsyncIterator[None]:
-    # Startup: later phases open DB / Redis / Qdrant connections here.
+    # Startup (the DB pool connects lazily on first query; Redis/Qdrant join in later phases).
     logger.info("Starting %s v%s", app.title, app.version)
     yield
-    # Shutdown: and close them here.
-    logger.info("Shutting down %s", app.title)
+    # Shutdown: close pooled DB connections cleanly.
+    await engine.dispose()
+    logger.info("Shut down %s", app.title)
 
 
 def create_app() -> FastAPI:

@@ -50,6 +50,10 @@ class ConflictError(AppError):
     status_code, code, message = 409, "conflict", "Resource conflict."
 
 
+class ServiceUnavailableError(AppError):
+    status_code, code, message = 503, "service_unavailable", "A required service is unavailable."
+
+
 _HTTP_STATUS_CODES = {
     400: "bad_request",
     401: "not_authenticated",

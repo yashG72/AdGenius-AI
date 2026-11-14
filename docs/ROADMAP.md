@@ -5,8 +5,8 @@ The project is built one phase at a time. Each phase ends with passing tests and
 | Phase | Scope | Key tech | Status |
 |------:|-------|----------|--------|
 | 0 | Repo setup, backend foundation (config, logging, request IDs, error envelope, health check, tests) | FastAPI, Pydantic Settings, pytest | ✅ Done |
-| 1 | Database layer: async SQLAlchemy, base models (UUID, timestamps), Alembic migrations | PostgreSQL, SQLAlchemy 2, Alembic | ⏳ Next |
-| 2 | Auth & organizations: register/login, JWT + refresh-token rotation, memberships, RBAC (owner/admin/member) | passlib/argon2, PyJWT | |
+| 1 | Database layer: async SQLAlchemy, base models (UUID, timestamps), Alembic migrations, organizations/users/memberships tables, readiness check | PostgreSQL 17, SQLAlchemy 2, Alembic | ✅ Done |
+| 2 | Auth & organizations: register/login, JWT + refresh-token rotation, organization APIs, RBAC (owner/admin/member) | argon2, PyJWT | ⏳ Next |
 | 3 | Brand management CRUD with org-level isolation | FastAPI, SQLAlchemy | |
 | 4 | Document upload + async ingestion pipeline (validate → store → extract → chunk → embed → index) | Celery, Redis, PyMuPDF, python-docx, Qdrant | |
 | 5 | Advanced RAG engine: query rewriting, hybrid search, fusion, reranking, citations, retrieval eval | LangChain, Qdrant | |
@@ -23,6 +23,8 @@ The project is built one phase at a time. Each phase ends with passing tests and
 
 Phases 1+ need services running locally on Windows:
 
-- **PostgreSQL 16+** — native Windows installer (phase 1).
+- **PostgreSQL 17** — installed via `winget install PostgreSQL.PostgreSQL.17`, runs as the
+  `postgresql-17` Windows service. App role `adgenius` owns databases `adgenius` (dev) and
+  `adgenius_test` (wiped by every test run).
 - **Redis** — Memurai (Redis-compatible for Windows) or Redis inside WSL (phase 4).
 - **Qdrant** — Windows binary from Qdrant's GitHub releases, or the free Qdrant Cloud tier (phase 4).

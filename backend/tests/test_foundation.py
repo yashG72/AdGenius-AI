@@ -1,10 +1,13 @@
-"""Tests for the Phase 0 foundation: health, request IDs, error envelope."""
+"""Phase 0 foundation: health, request IDs, error envelope."""
 
-from fastapi.testclient import TestClient
+import pytest
+from httpx import AsyncClient
+
+pytestmark = pytest.mark.anyio
 
 
-def test_health_returns_ok(client: TestClient) -> None:
-    response = client.get("/api/v1/health")
+async def test_health_returns_ok(client: AsyncClient) -> None:
+    response = await client.get("/api/v1/health")
 
     assert response.status_code == 200
     body = response.json()
@@ -12,26 +15,26 @@ def test_health_returns_ok(client: TestClient) -> None:
     assert body["app"] == "AdGenius AI"
 
 
-def test_request_id_is_generated(client: TestClient) -> None:
-    response = client.get("/api/v1/health")
+async def test_request_id_is_generated(client: AsyncClient) -> None:
+    response = await client.get("/api/v1/health")
 
     assert len(response.headers["X-Request-ID"]) == 32
 
 
-def test_valid_client_request_id_is_echoed(client: TestClient) -> None:
-    response = client.get("/api/v1/health", headers={"X-Request-ID": "abc-123"})
+async def test_valid_client_request_id_is_echoed(client: AsyncClient) -> None:
+    response = await client.get("/api/v1/health", headers={"X-Request-ID": "abc-123"})
 
     assert response.headers["X-Request-ID"] == "abc-123"
 
 
-def test_unsafe_client_request_id_is_replaced(client: TestClient) -> None:
-    response = client.get("/api/v1/health", headers={"X-Request-ID": "bad id\nwith newline"})
+async def test_unsafe_client_request_id_is_replaced(client: AsyncClient) -> None:
+    response = await client.get("/api/v1/health", headers={"X-Request-ID": "bad id;drop"})
 
-    assert response.headers["X-Request-ID"] != "bad id\nwith newline"
+    assert response.headers["X-Request-ID"] != "bad id;drop"
 
 
-def test_unknown_route_uses_error_envelope(client: TestClient) -> None:
-    response = client.get("/api/v1/does-not-exist", headers={"X-Request-ID": "req-1"})
+async def test_unknown_route_uses_error_envelope(client: AsyncClient) -> None:
+    response = await client.get("/api/v1/does-not-exist", headers={"X-Request-ID": "req-1"})
 
     assert response.status_code == 404
     error = response.json()["error"]
