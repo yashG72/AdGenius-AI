@@ -46,6 +46,34 @@ class FakeReranker:
         return [len(q & set(_words(t))) / (len(q) or 1) for t in texts]
 
 
+class FakeSearchProvider:
+    """Returns scripted raw results per query (default: one generic result); records calls.
+    A scripted Exception is raised instead (to simulate provider failures)."""
+
+    name = "fake"
+
+    def __init__(self, scripted: dict[str, object] | None = None) -> None:
+        self.scripted = scripted or {}
+        self.calls: list[str] = []
+
+    async def search(self, query: str, options) -> list[dict]:
+        self.calls.append(query)
+        response = self.scripted.get(query)
+        if isinstance(response, Exception):
+            raise response
+        if response is None:
+            slug = "-".join(query.lower().split())
+            response = [
+                {
+                    "url": f"https://example.com/{slug}",
+                    "title": query.title(),
+                    "content": f"Article about {query}.",
+                    "score": 0.5,
+                }
+            ]
+        return response
+
+
 class FakeLLM:
     """Returns scripted responses per schema. A response may be a model instance, a
     callable(system, user) -> instance, or an Exception to raise."""

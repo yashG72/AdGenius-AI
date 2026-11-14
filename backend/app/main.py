@@ -19,6 +19,7 @@ from app.core.logging import configure_logging
 from app.core.middleware import REQUEST_ID_HEADER, RequestIDMiddleware
 from app.db.session import engine
 from app.ingestion.vector_store import get_qdrant_client
+from app.research.cache import get_redis
 
 logger = logging.getLogger(__name__)
 
@@ -32,6 +33,8 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
     await engine.dispose()
     if get_qdrant_client.cache_info().currsize:
         await get_qdrant_client().close()
+    if get_redis.cache_info().currsize:
+        await get_redis().aclose()
     logger.info("Shut down %s", app.title)
 
 

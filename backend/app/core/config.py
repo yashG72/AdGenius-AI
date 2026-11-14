@@ -94,6 +94,17 @@ class Settings(BaseSettings):
     rag_context_chunks: int = Field(default=5, ge=1)  # chunks given to the LLM
     rag_context_token_budget: int = Field(default=4000, ge=200)
 
+    # ---------- Live web research (Tavily) ----------
+    tavily_api_key: SecretStr | None = None
+    web_search_depth: Literal["basic", "advanced"] = "basic"  # basic = 1 credit, advanced = 2
+    web_search_max_results: int = Field(default=5, ge=1, le=20)
+    web_search_timeout_seconds: int = Field(default=20, ge=1)
+    web_search_cache_ttl_seconds: int = Field(default=24 * 3600, ge=0)  # 0 disables caching
+    web_research_max_queries: int = Field(default=6, ge=1, le=15)  # credit budget per run
+    web_research_concurrency: int = Field(default=3, ge=1, le=10)
+    web_research_max_evidence: int = Field(default=20, ge=1, le=50)
+    web_snippet_max_chars: int = Field(default=1200, ge=200, le=5000)
+
     @model_validator(mode="after")
     def _overlap_smaller_than_chunk(self) -> "Settings":
         if self.chunk_overlap_tokens >= self.chunk_size_tokens:
