@@ -13,7 +13,8 @@ from pathlib import Path
 
 from app.main import create_app
 
-DEFAULT_OUT = Path(__file__).resolve().parents[2] / "frontend" / "src" / "lib" / "api" / "openapi.json"
+REPO_ROOT = Path(__file__).resolve().parents[2]
+DEFAULT_OUT = REPO_ROOT / "frontend" / "src" / "lib" / "api" / "openapi.json"
 
 
 def main() -> None:

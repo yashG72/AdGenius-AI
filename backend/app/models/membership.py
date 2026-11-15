@@ -55,9 +55,7 @@ class Membership(UUIDPrimaryKeyMixin, TimestampMixin, Base):
         default=MembershipRole.MEMBER,
     )
 
-    organization: Mapped["Organization"] = relationship(
-        back_populates="memberships", lazy="raise"
-    )
+    organization: Mapped["Organization"] = relationship(back_populates="memberships", lazy="raise")
     user: Mapped["User"] = relationship(back_populates="memberships", lazy="raise")
 
     def __repr__(self) -> str:

@@ -105,9 +105,7 @@ class BrandUpdate(BrandProfile):
     @model_validator(mode="after")
     def _reject_null_for_required_fields(self) -> "BrandUpdate":
         explicit_nulls = {
-            field
-            for field in self.model_fields_set & _NON_NULLABLE
-            if getattr(self, field) is None
+            field for field in self.model_fields_set & _NON_NULLABLE if getattr(self, field) is None
         }
         if explicit_nulls:
             raise ValueError(f"These fields cannot be null: {', '.join(sorted(explicit_nulls))}")

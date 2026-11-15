@@ -40,7 +40,7 @@ function navItems(orgId: string): NavItem[] {
   return [
     { href: `${base}/dashboard`, label: "Dashboard", icon: LayoutDashboardIcon },
     { href: `${base}/brands`, label: "Brands", icon: BriefcaseIcon },
-    { href: `${base}/campaigns`, label: "Campaigns", icon: MegaphoneIcon, soon: true },
+    { href: `${base}/campaigns`, label: "Campaigns", icon: MegaphoneIcon },
     { href: `${base}/settings`, label: "Settings", icon: SettingsIcon },
   ]
 }

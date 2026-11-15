@@ -5,8 +5,8 @@ Specialized AI agents research a brand (RAG over uploaded documents) and its com
 (live web search), develop creative concepts, write scripts, build storyboards with
 image-generation prompts, and critique the result before a human approves it.
 
-> **Status:** Phase 10 complete — backend feature-complete; the Next.js frontend covers auth,
-> workspaces, dashboard, brands, knowledge base and settings. Campaign screens are next.
+> **Status:** Phase 11 complete — the full product works end to end in the browser: brief →
+> live multi-agent run → concept approval → evaluation → script/storyboard editing → PDF.
 > Frontend docs: [frontend/README.md](frontend/README.md). See [docs/RAG_EVALUATION.md](docs/RAG_EVALUATION.md)
 > for how retrieval settings were chosen. See [docs/ROADMAP.md](docs/ROADMAP.md) for the phase plan.
 
@@ -122,7 +122,9 @@ GET  /campaign-runs/{run_id}/script     also /concepts /storyboard /evaluation (
 POST /campaign-runs/{run_id}/regenerate new version from the current brief (old kept)
 POST /campaign-runs/{run_id}/retry      continue a failed run from its last checkpoint
 GET  /campaign-runs/{run_id}/evaluation-summary   score trend, issues, revisions, timings
-GET  /campaign-runs/{run_id}/export.pdf           finished campaign as a PDF
+GET  /campaign-runs/{run_id}/export.pdf           finished campaign as a PDF (latest edits)
+PUT  /campaign-runs/{run_id}/script               save an edited script as a new version
+PUT  /campaign-runs/{run_id}/storyboard           save an edited storyboard as a new version
 GET  /organizations/{id}/dashboard                totals, quality rates, recent activity
 ```
 

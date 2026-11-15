@@ -29,6 +29,7 @@ export function useBrand(brandId: string) {
     queryKey: brandKeys.detail(brandId),
     queryFn: () =>
       unwrap(api.GET("/api/v1/brands/{brand_id}", { params: { path: { brand_id: brandId } } })),
+    enabled: !!brandId, // e.g. while the campaign that names the brand is still loading
   })
 }
 

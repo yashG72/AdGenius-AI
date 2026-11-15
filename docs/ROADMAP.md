@@ -15,8 +15,8 @@ The project is built one phase at a time. Each phase ends with passing tests and
 | 8 | Campaigns API: versioned runs with brief/brand snapshots, idempotent worker execution (start / resume / continue), live progress persistence, approvals API, versioned outputs, retry & regenerate, SSE event stream with Last-Event-ID resume | FastAPI, Celery, SSE | ✅ Done |
 | 9 | Campaign PDF export (PyMuPDF HTML renderer, escaped untrusted text), per-run evaluation summary (score trend, issues, revisions, agent timings), organization dashboard (totals, quality rates, activity, recent items), LangSmith trace metadata | PyMuPDF, LangSmith | ✅ Done |
 | 10 | Frontend foundation: typed API client from OpenAPI, httpOnly-cookie auth (BFF route handlers, single-flight refresh), login/register, workspace picker & switcher, dashboard, brands + full profile editor, knowledge base (upload, live status, reindex, delete), settings (account, workspace, members/roles), Playwright E2E | Next.js 16, TS, Tailwind 4, shadcn/ui, TanStack Query, Playwright | ✅ Done |
-| 11 | Frontend campaign flow: wizard, live execution view, concept selection, script/storyboard editors, critic view | Next.js | ⏳ Next |
-| 12 | Hardening: security review, rate limiting, test coverage, RAG/agent evaluation | | |
+| 11 | Campaign UI: list, 4-step brief wizard (create/edit), campaign history, run workspace with live agent pipeline (fetch-based SSE + Last-Event-ID), concept approval/rejection, research/concepts views, versioned script & storyboard editors (backend: human edits saved as new versions), Critic evaluation dashboard (validated chart palette), PDF download, regenerate/retry; full-product Playwright test with real agents | Next.js, SSE, Playwright | ✅ Done |
+| 12 | Hardening: security review, rate limiting, test coverage, RAG/agent evaluation | | ⏳ Next |
 | 13 | Containerization & deployment (deferred) | Docker | |
 
 ## Deferred items (tracked so they aren't forgotten)

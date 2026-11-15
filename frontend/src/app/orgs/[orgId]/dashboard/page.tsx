@@ -120,7 +120,7 @@ export default function DashboardPage() {
                 {data.recent_campaigns.map((c) => (
                   <li key={c.id} className="flex items-center gap-3 py-3">
                     <div className="min-w-0 flex-1">
-                      <p className="truncate font-medium">{c.name}</p>
+                      <Link href={`/orgs/${orgId}/campaigns/${c.id}`} className="block truncate font-medium hover:text-primary">{c.name}</Link>
                       <p className="text-xs text-muted-foreground">
                         {c.run_count} run{c.run_count === 1 ? "" : "s"} · updated {formatRelative(c.updated_at)}
                       </p>
@@ -138,7 +138,14 @@ export default function DashboardPage() {
               <EmptyState
                 icon={MegaphoneIcon}
                 title="No campaigns yet"
-                description="Set up a brand and its knowledge base first — campaign creation arrives in the next release."
+                description="Write a brief and let the agents research, ideate, script and storyboard it."
+                action={
+                  <Button asChild>
+                    <Link href={`/orgs/${orgId}/campaigns/new`}>
+                      <PlusIcon /> New campaign
+                    </Link>
+                  </Button>
+                }
               />
             )}
           </CardContent>

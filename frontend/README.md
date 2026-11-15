@@ -29,8 +29,15 @@ npm run dev                        # http://localhost:3000  (backend must be run
   short-lived access token in memory. Refreshing is single-flight (the backend revokes a
   session when a refresh token is reused), and a 401 is retried once after refreshing.
 - **Routing** — `/login`, `/register`, `/orgs` (workspace picker), and
-  `/orgs/[orgId]/{dashboard,brands,brands/[brandId],settings}`. The workspace lives in the
-  URL, so links are shareable.
+  `/orgs/[orgId]/{dashboard,brands,brands/[brandId],campaigns,campaigns/new,
+  campaigns/[campaignId],campaigns/[campaignId]/edit,campaigns/[campaignId]/runs/[runId],settings}`.
+  The workspace lives in the URL, so links are shareable.
+- **Live runs** — `src/lib/sse.ts` reads the backend's text/event-stream with `fetch` (the
+  browser's EventSource can't send an Authorization header) and reconnects with
+  `Last-Event-ID`; `useRunEvents` pushes agent steps straight into the query cache.
+- **Charts** — `components/charts/bar-chart.tsx` follows a validated method: one hue
+  (`--chart-1`, checked for the dark lightness band and contrast), thin bars, value at the
+  tip, threshold line, hover + keyboard tooltips, and a table view.
 - **Data** — TanStack Query hooks in `src/lib/queries/*`. Document lists poll only while
   something is still being indexed.
 - **Theme** — dark charcoal + amber tokens in `src/app/globals.css` (`.dark`); the app is
@@ -45,5 +52,8 @@ npm run build; npm start            # in one terminal
 npm run test:e2e                    # in another
 ```
 
-The test registers a user, creates a workspace and brand, edits the profile, uploads a
-document, waits for indexing, checks the dashboard and settings, and signs out.
+- `e2e/smoke.spec.ts` (~15 s): register, workspace, brand profile, document indexing,
+  dashboard, settings, sign out.
+- `e2e/campaign.spec.ts` (several minutes, **uses real Gemini + Tavily credits**): brief
+  wizard → live agent run → concept approval → evaluation → script edit (v2) → PDF.
+  Run it alone with `npx playwright test campaign`.

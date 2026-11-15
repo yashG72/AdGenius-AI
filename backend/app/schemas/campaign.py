@@ -105,6 +105,8 @@ class OutputRead(BaseModel):
     version: int
     versions: int = Field(description="How many versions of this output the run produced.")
     content: dict[str, Any]
+    source: str = Field(description='"agent" (workflow) or "human" (saved from an editor).')
+    created_by_id: uuid.UUID | None
     created_at: datetime
 
 

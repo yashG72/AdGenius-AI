@@ -600,6 +600,42 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/campaign-runs/{run_id}/script": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Latest (or ?version=) script */
+        get: operations["get_script_api_v1_campaign_runs__run_id__script_get"];
+        /** Save an edited script as a new version */
+        put: operations["save_script_api_v1_campaign_runs__run_id__script_put"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/campaign-runs/{run_id}/storyboard": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Latest (or ?version=) storyboard */
+        get: operations["get_storyboard_api_v1_campaign_runs__run_id__storyboard_get"];
+        /** Save an edited storyboard as a new version */
+        put: operations["save_storyboard_api_v1_campaign_runs__run_id__storyboard_put"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/campaign-runs/{run_id}/outputs/{output_type}": {
         parameters: {
             query?: never;
@@ -626,40 +662,6 @@ export interface paths {
         };
         /** Latest (or ?version=) concepts */
         get: operations["get_concepts_api_v1_campaign_runs__run_id__concepts_get"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/campaign-runs/{run_id}/script": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Latest (or ?version=) script */
-        get: operations["get_script_api_v1_campaign_runs__run_id__script_get"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/campaign-runs/{run_id}/storyboard": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Latest (or ?version=) storyboard */
-        get: operations["get_storyboard_api_v1_campaign_runs__run_id__storyboard_get"];
         put?: never;
         post?: never;
         delete?: never;
@@ -1282,6 +1284,13 @@ export interface components {
             /** Runs Failed */
             runs_failed: number;
         };
+        /** DialogueLine */
+        DialogueLine: {
+            /** Speaker */
+            speaker: string;
+            /** Line */
+            line: string;
+        };
         /**
          * DocumentFormat
          * @enum {string}
@@ -1422,6 +1431,37 @@ export interface components {
             version: string;
             /** Environment */
             environment: string;
+        };
+        /** ImagePrompt */
+        ImagePrompt: {
+            /**
+             * Prompt
+             * @description Complete, self-contained text-to-image prompt.
+             */
+            prompt: string;
+            /** Visual Style */
+            visual_style: string;
+            /** Subject */
+            subject: string;
+            /** Environment */
+            environment: string;
+            /** Lighting */
+            lighting: string;
+            /** Composition */
+            composition: string;
+            /** Camera Perspective */
+            camera_perspective: string;
+            /**
+             * Aspect Ratio
+             * @default
+             */
+            aspect_ratio: string;
+            /**
+             * Negative Prompt
+             * @description What the image must NOT contain.
+             * @default
+             */
+            negative_prompt: string;
         };
         /** IterationScore */
         IterationScore: {
@@ -1603,6 +1643,13 @@ export interface components {
             content: {
                 [key: string]: unknown;
             };
+            /**
+             * Source
+             * @description "agent" (workflow) or "human" (saved from an editor).
+             */
+            source: string;
+            /** Created By Id */
+            created_by_id: string | null;
             /**
              * Created At
              * Format: date-time
@@ -1826,6 +1873,69 @@ export interface components {
             /** Finished At */
             finished_at: string | null;
         };
+        /** Script */
+        Script: {
+            /** Title */
+            title: string;
+            /**
+             * Duration Seconds
+             * @default 0
+             */
+            duration_seconds: number;
+            /** Opening Hook */
+            opening_hook: string;
+            /** Scenes */
+            scenes: components["schemas"]["ScriptScene"][];
+            /**
+             * Music Suggestion
+             * @default
+             */
+            music_suggestion: string;
+            /** Call To Action */
+            call_to_action: string;
+            /**
+             * Timing Adjusted
+             * @default false
+             */
+            timing_adjusted: boolean;
+        };
+        /** ScriptScene */
+        ScriptScene: {
+            /** Scene Number */
+            scene_number: number;
+            /** Duration Seconds */
+            duration_seconds: number;
+            /**
+             * Start Time
+             * @default 0
+             */
+            start_time: number;
+            /**
+             * End Time
+             * @default 0
+             */
+            end_time: number;
+            /** Visual Summary */
+            visual_summary: string;
+            /**
+             * Voiceover
+             * @default
+             */
+            voiceover: string;
+            /** Dialogue */
+            dialogue?: components["schemas"]["DialogueLine"][];
+            /**
+             * On Screen Text
+             * @default
+             */
+            on_screen_text: string;
+            /**
+             * Sound
+             * @description Music cue / sound effects for this scene.
+             * @default
+             */
+            sound: string;
+        };
         /** SearchRequest */
         SearchRequest: {
             /** Query */
@@ -1902,6 +2012,78 @@ export interface components {
             from_cache: boolean;
             /** Cited */
             cited: boolean;
+        };
+        /** Storyboard */
+        Storyboard: {
+            /** Visual Style */
+            visual_style: string;
+            /**
+             * Consistency Notes
+             * @description Recurring characters, palette, props and look kept identical across scenes.
+             */
+            consistency_notes: string;
+            /** Scenes */
+            scenes: components["schemas"]["StoryboardScene"][];
+            /**
+             * Total Duration Seconds
+             * @default 0
+             */
+            total_duration_seconds: number;
+            /**
+             * Timing Adjusted
+             * @default false
+             */
+            timing_adjusted: boolean;
+        };
+        /** StoryboardScene */
+        StoryboardScene: {
+            /** Scene Number */
+            scene_number: number;
+            /** Duration Seconds */
+            duration_seconds: number;
+            /**
+             * Start Time
+             * @default 0
+             */
+            start_time: number;
+            /**
+             * End Time
+             * @default 0
+             */
+            end_time: number;
+            /** Scene Description */
+            scene_description: string;
+            /** Visual Direction */
+            visual_direction: string;
+            /**
+             * Composition
+             * @default
+             */
+            composition: string;
+            /** Camera Angle */
+            camera_angle: string;
+            /** Camera Movement */
+            camera_movement: string;
+            /** Lighting */
+            lighting: string;
+            /**
+             * Voiceover
+             * @default
+             */
+            voiceover: string;
+            /** Dialogue */
+            dialogue?: components["schemas"]["DialogueLine"][];
+            /**
+             * On Screen Text
+             * @default
+             */
+            on_screen_text: string;
+            /**
+             * Transition
+             * @description Transition into the next scene.
+             */
+            transition: string;
+            image_prompt: components["schemas"]["ImagePrompt"];
         };
         /** TokenResponse */
         TokenResponse: {
@@ -3822,6 +4004,180 @@ export interface operations {
             };
         };
     };
+    get_script_api_v1_campaign_runs__run_id__script_get: {
+        parameters: {
+            query?: {
+                /** @description Default: latest version */
+                version?: number | null;
+            };
+            header?: never;
+            path: {
+                run_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OutputRead"];
+                };
+            };
+            /** @description Validation error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Internal error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    save_script_api_v1_campaign_runs__run_id__script_put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                run_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["Script"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OutputRead"];
+                };
+            };
+            /** @description Validation error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Internal error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    get_storyboard_api_v1_campaign_runs__run_id__storyboard_get: {
+        parameters: {
+            query?: {
+                /** @description Default: latest version */
+                version?: number | null;
+            };
+            header?: never;
+            path: {
+                run_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OutputRead"];
+                };
+            };
+            /** @description Validation error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Internal error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    save_storyboard_api_v1_campaign_runs__run_id__storyboard_put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                run_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["Storyboard"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OutputRead"];
+                };
+            };
+            /** @description Validation error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Internal error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
     get_output_api_v1_campaign_runs__run_id__outputs__output_type__get: {
         parameters: {
             query?: {
@@ -3867,92 +4223,6 @@ export interface operations {
         };
     };
     get_concepts_api_v1_campaign_runs__run_id__concepts_get: {
-        parameters: {
-            query?: {
-                /** @description Default: latest version */
-                version?: number | null;
-            };
-            header?: never;
-            path: {
-                run_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["OutputRead"];
-                };
-            };
-            /** @description Validation error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Internal error */
-            500: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-        };
-    };
-    get_script_api_v1_campaign_runs__run_id__script_get: {
-        parameters: {
-            query?: {
-                /** @description Default: latest version */
-                version?: number | null;
-            };
-            header?: never;
-            path: {
-                run_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["OutputRead"];
-                };
-            };
-            /** @description Validation error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Internal error */
-            500: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-        };
-    };
-    get_storyboard_api_v1_campaign_runs__run_id__storyboard_get: {
         parameters: {
             query?: {
                 /** @description Default: latest version */

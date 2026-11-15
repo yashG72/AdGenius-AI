@@ -2737,6 +2737,292 @@
         }
       }
     },
+    "/api/v1/campaign-runs/{run_id}/script": {
+      "put": {
+        "tags": [
+          "campaign runs"
+        ],
+        "summary": "Save an edited script as a new version",
+        "operationId": "save_script_api_v1_campaign_runs__run_id__script_put",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "run_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Run Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Script"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OutputRead"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "tags": [
+          "campaign runs"
+        ],
+        "summary": "Latest (or ?version=) script",
+        "operationId": "get_script_api_v1_campaign_runs__run_id__script_get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "run_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Run Id"
+            }
+          },
+          {
+            "name": "version",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer",
+                  "minimum": 1
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Default: latest version",
+              "title": "Version"
+            },
+            "description": "Default: latest version"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OutputRead"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/campaign-runs/{run_id}/storyboard": {
+      "put": {
+        "tags": [
+          "campaign runs"
+        ],
+        "summary": "Save an edited storyboard as a new version",
+        "operationId": "save_storyboard_api_v1_campaign_runs__run_id__storyboard_put",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "run_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Run Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Storyboard"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OutputRead"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "tags": [
+          "campaign runs"
+        ],
+        "summary": "Latest (or ?version=) storyboard",
+        "operationId": "get_storyboard_api_v1_campaign_runs__run_id__storyboard_get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "run_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Run Id"
+            }
+          },
+          {
+            "name": "version",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer",
+                  "minimum": 1
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Default: latest version",
+              "title": "Version"
+            },
+            "description": "Default: latest version"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OutputRead"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/campaign-runs/{run_id}/outputs/{output_type}": {
       "get": {
         "tags": [
@@ -2829,160 +3115,6 @@
         ],
         "summary": "Latest (or ?version=) concepts",
         "operationId": "get_concepts_api_v1_campaign_runs__run_id__concepts_get",
-        "security": [
-          {
-            "HTTPBearer": []
-          }
-        ],
-        "parameters": [
-          {
-            "name": "run_id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "format": "uuid",
-              "title": "Run Id"
-            }
-          },
-          {
-            "name": "version",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "anyOf": [
-                {
-                  "type": "integer",
-                  "minimum": 1
-                },
-                {
-                  "type": "null"
-                }
-              ],
-              "description": "Default: latest version",
-              "title": "Version"
-            },
-            "description": "Default: latest version"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/OutputRead"
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "Validation error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          },
-          "500": {
-            "description": "Internal error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/v1/campaign-runs/{run_id}/script": {
-      "get": {
-        "tags": [
-          "campaign runs"
-        ],
-        "summary": "Latest (or ?version=) script",
-        "operationId": "get_script_api_v1_campaign_runs__run_id__script_get",
-        "security": [
-          {
-            "HTTPBearer": []
-          }
-        ],
-        "parameters": [
-          {
-            "name": "run_id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "format": "uuid",
-              "title": "Run Id"
-            }
-          },
-          {
-            "name": "version",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "anyOf": [
-                {
-                  "type": "integer",
-                  "minimum": 1
-                },
-                {
-                  "type": "null"
-                }
-              ],
-              "description": "Default: latest version",
-              "title": "Version"
-            },
-            "description": "Default: latest version"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/OutputRead"
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "Validation error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          },
-          "500": {
-            "description": "Internal error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/v1/campaign-runs/{run_id}/storyboard": {
-      "get": {
-        "tags": [
-          "campaign runs"
-        ],
-        "summary": "Latest (or ?version=) storyboard",
-        "operationId": "get_storyboard_api_v1_campaign_runs__run_id__storyboard_get",
         "security": [
           {
             "HTTPBearer": []
@@ -4928,6 +5060,24 @@
         ],
         "title": "DashboardTotals"
       },
+      "DialogueLine": {
+        "properties": {
+          "speaker": {
+            "type": "string",
+            "title": "Speaker"
+          },
+          "line": {
+            "type": "string",
+            "title": "Line"
+          }
+        },
+        "type": "object",
+        "required": [
+          "speaker",
+          "line"
+        ],
+        "title": "DialogueLine"
+      },
       "DocumentFormat": {
         "type": "string",
         "enum": [
@@ -5282,6 +5432,61 @@
           "environment"
         ],
         "title": "HealthResponse"
+      },
+      "ImagePrompt": {
+        "properties": {
+          "prompt": {
+            "type": "string",
+            "title": "Prompt",
+            "description": "Complete, self-contained text-to-image prompt."
+          },
+          "visual_style": {
+            "type": "string",
+            "title": "Visual Style"
+          },
+          "subject": {
+            "type": "string",
+            "title": "Subject"
+          },
+          "environment": {
+            "type": "string",
+            "title": "Environment"
+          },
+          "lighting": {
+            "type": "string",
+            "title": "Lighting"
+          },
+          "composition": {
+            "type": "string",
+            "title": "Composition"
+          },
+          "camera_perspective": {
+            "type": "string",
+            "title": "Camera Perspective"
+          },
+          "aspect_ratio": {
+            "type": "string",
+            "title": "Aspect Ratio",
+            "default": ""
+          },
+          "negative_prompt": {
+            "type": "string",
+            "title": "Negative Prompt",
+            "description": "What the image must NOT contain.",
+            "default": ""
+          }
+        },
+        "type": "object",
+        "required": [
+          "prompt",
+          "visual_style",
+          "subject",
+          "environment",
+          "lighting",
+          "composition",
+          "camera_perspective"
+        ],
+        "title": "ImagePrompt"
       },
       "IterationScore": {
         "properties": {
@@ -5696,6 +5901,23 @@
             "type": "object",
             "title": "Content"
           },
+          "source": {
+            "type": "string",
+            "title": "Source",
+            "description": "\"agent\" (workflow) or \"human\" (saved from an editor)."
+          },
+          "created_by_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Created By Id"
+          },
           "created_at": {
             "type": "string",
             "format": "date-time",
@@ -5709,6 +5931,8 @@
           "version",
           "versions",
           "content",
+          "source",
+          "created_by_id",
           "created_at"
         ],
         "title": "OutputRead"
@@ -6287,6 +6511,110 @@
         ],
         "title": "RunSummary"
       },
+      "Script": {
+        "properties": {
+          "title": {
+            "type": "string",
+            "title": "Title"
+          },
+          "duration_seconds": {
+            "type": "number",
+            "title": "Duration Seconds",
+            "default": 0
+          },
+          "opening_hook": {
+            "type": "string",
+            "title": "Opening Hook"
+          },
+          "scenes": {
+            "items": {
+              "$ref": "#/components/schemas/ScriptScene"
+            },
+            "type": "array",
+            "minItems": 1,
+            "title": "Scenes"
+          },
+          "music_suggestion": {
+            "type": "string",
+            "title": "Music Suggestion",
+            "default": ""
+          },
+          "call_to_action": {
+            "type": "string",
+            "title": "Call To Action"
+          },
+          "timing_adjusted": {
+            "type": "boolean",
+            "title": "Timing Adjusted",
+            "default": false
+          }
+        },
+        "type": "object",
+        "required": [
+          "title",
+          "opening_hook",
+          "scenes",
+          "call_to_action"
+        ],
+        "title": "Script"
+      },
+      "ScriptScene": {
+        "properties": {
+          "scene_number": {
+            "type": "integer",
+            "title": "Scene Number"
+          },
+          "duration_seconds": {
+            "type": "number",
+            "exclusiveMinimum": 0.0,
+            "title": "Duration Seconds"
+          },
+          "start_time": {
+            "type": "number",
+            "title": "Start Time",
+            "default": 0
+          },
+          "end_time": {
+            "type": "number",
+            "title": "End Time",
+            "default": 0
+          },
+          "visual_summary": {
+            "type": "string",
+            "title": "Visual Summary"
+          },
+          "voiceover": {
+            "type": "string",
+            "title": "Voiceover",
+            "default": ""
+          },
+          "dialogue": {
+            "items": {
+              "$ref": "#/components/schemas/DialogueLine"
+            },
+            "type": "array",
+            "title": "Dialogue"
+          },
+          "on_screen_text": {
+            "type": "string",
+            "title": "On Screen Text",
+            "default": ""
+          },
+          "sound": {
+            "type": "string",
+            "title": "Sound",
+            "description": "Music cue / sound effects for this scene.",
+            "default": ""
+          }
+        },
+        "type": "object",
+        "required": [
+          "scene_number",
+          "duration_seconds",
+          "visual_summary"
+        ],
+        "title": "ScriptScene"
+      },
       "SearchRequest": {
         "properties": {
           "query": {
@@ -6465,6 +6793,130 @@
           "cited"
         ],
         "title": "SourceRef"
+      },
+      "Storyboard": {
+        "properties": {
+          "visual_style": {
+            "type": "string",
+            "title": "Visual Style"
+          },
+          "consistency_notes": {
+            "type": "string",
+            "title": "Consistency Notes",
+            "description": "Recurring characters, palette, props and look kept identical across scenes."
+          },
+          "scenes": {
+            "items": {
+              "$ref": "#/components/schemas/StoryboardScene"
+            },
+            "type": "array",
+            "minItems": 1,
+            "title": "Scenes"
+          },
+          "total_duration_seconds": {
+            "type": "number",
+            "title": "Total Duration Seconds",
+            "default": 0
+          },
+          "timing_adjusted": {
+            "type": "boolean",
+            "title": "Timing Adjusted",
+            "default": false
+          }
+        },
+        "type": "object",
+        "required": [
+          "visual_style",
+          "consistency_notes",
+          "scenes"
+        ],
+        "title": "Storyboard"
+      },
+      "StoryboardScene": {
+        "properties": {
+          "scene_number": {
+            "type": "integer",
+            "title": "Scene Number"
+          },
+          "duration_seconds": {
+            "type": "number",
+            "exclusiveMinimum": 0.0,
+            "title": "Duration Seconds"
+          },
+          "start_time": {
+            "type": "number",
+            "title": "Start Time",
+            "default": 0
+          },
+          "end_time": {
+            "type": "number",
+            "title": "End Time",
+            "default": 0
+          },
+          "scene_description": {
+            "type": "string",
+            "title": "Scene Description"
+          },
+          "visual_direction": {
+            "type": "string",
+            "title": "Visual Direction"
+          },
+          "composition": {
+            "type": "string",
+            "title": "Composition",
+            "default": ""
+          },
+          "camera_angle": {
+            "type": "string",
+            "title": "Camera Angle"
+          },
+          "camera_movement": {
+            "type": "string",
+            "title": "Camera Movement"
+          },
+          "lighting": {
+            "type": "string",
+            "title": "Lighting"
+          },
+          "voiceover": {
+            "type": "string",
+            "title": "Voiceover",
+            "default": ""
+          },
+          "dialogue": {
+            "items": {
+              "$ref": "#/components/schemas/DialogueLine"
+            },
+            "type": "array",
+            "title": "Dialogue"
+          },
+          "on_screen_text": {
+            "type": "string",
+            "title": "On Screen Text",
+            "default": ""
+          },
+          "transition": {
+            "type": "string",
+            "title": "Transition",
+            "description": "Transition into the next scene."
+          },
+          "image_prompt": {
+            "$ref": "#/components/schemas/ImagePrompt"
+          }
+        },
+        "type": "object",
+        "required": [
+          "scene_number",
+          "duration_seconds",
+          "scene_description",
+          "visual_direction",
+          "camera_angle",
+          "camera_movement",
+          "lighting",
+          "transition",
+          "image_prompt"
+        ],
+        "title": "StoryboardScene"
       },
       "TokenResponse": {
         "properties": {

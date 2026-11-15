@@ -11,6 +11,8 @@ from fastapi import APIRouter, BackgroundTasks, Header, Query, Request, Response
 from fastapi.responses import StreamingResponse
 from starlette.concurrency import run_in_threadpool
 
+from app.agents.schemas import Script, Storyboard
+from app.agents.timing import normalize_timeline
 from app.api.deps import CurrentUserDep, DbSessionDep, SettingsDep
 from app.core.exceptions import ConflictError, NotFoundError
 from app.exports.campaign_pdf import render_pdf
@@ -237,6 +239,17 @@ async def export_pdf(run_id: uuid.UUID, user: CurrentUserDep, session: DbSession
     except NotFoundError as exc:
         raise ConflictError("The campaign is not finished yet - nothing to export.") from exc
     campaign = await session.get(Campaign, run.campaign_id)
+    # Export the LATEST script/storyboard, including human edits made after the run.
+    content = dict(final.content)
+    for key, output_type in (("script", OutputType.SCRIPT), ("storyboard", OutputType.STORYBOARD)):
+        latest = await campaign_service.latest_output_content(session, run.id, output_type)
+        if latest:
+            content[key] = latest
+    if content.get("storyboard"):
+        content["image_prompts"] = [
+            {"scene_number": s["scene_number"], **s["image_prompt"]}
+            for s in content["storyboard"].get("scenes", [])
+        ]
     context = {
         "campaign_name": campaign.name,
         "brand_name": run.brand_snapshot.get("name", ""),
@@ -246,7 +259,7 @@ async def export_pdf(run_id: uuid.UUID, user: CurrentUserDep, session: DbSession
             "overall_score": run.overall_score,
         },
         "brief": run.brief_snapshot,
-        "final": final.content,
+        "final": content,
     }
     pdf = await run_in_threadpool(render_pdf, context)  # CPU work off the event loop
     filename = f"{_slug(campaign.name)}-v{run.version}.pdf"
@@ -265,17 +278,65 @@ def _slug(name: str) -> str:
 # ---------- Outputs ----------
 
 
-async def _output(session, user, run_id, output_type: OutputType, version: int | None):
-    await campaign_service.get_run_for_user(session, run_id, user.id)
-    output, total = await campaign_service.get_output(session, run_id, output_type, version)
+def _output_read(output, total: int) -> OutputRead:
     return OutputRead(
         run_id=output.run_id,
         output_type=output.output_type,
         version=output.version,
         versions=total,
         content=output.content,
+        source=output.source,
+        created_by_id=output.created_by_id,
         created_at=output.created_at,
     )
+
+
+async def _output(session, user, run_id, output_type: OutputType, version: int | None):
+    await campaign_service.get_run_for_user(session, run_id, user.id)
+    output, total = await campaign_service.get_output(session, run_id, output_type, version)
+    return _output_read(output, total)
+
+
+# ---------- Human edits (script / storyboard editors) ----------
+
+
+@router.put(
+    "/campaign-runs/{run_id}/script",
+    response_model=OutputRead,
+    summary="Save an edited script as a new version",
+)
+async def save_script(
+    run_id: uuid.UUID, data: Script, user: CurrentUserDep, session: DbSessionDep
+) -> OutputRead:
+    run = await campaign_service.get_run_for_user(session, run_id, user.id)
+    target = float(run.brief_snapshot["duration_seconds"])
+    # Same guarantees as the agents' output: contiguous timeline, exact total duration.
+    data.timing_adjusted = normalize_timeline(data.scenes, target)
+    data.duration_seconds = target
+    output = await campaign_service.save_human_output(
+        session, run, user, OutputType.SCRIPT, data.model_dump()
+    )
+    return _output_read(output, output.version)
+
+
+@router.put(
+    "/campaign-runs/{run_id}/storyboard",
+    response_model=OutputRead,
+    summary="Save an edited storyboard as a new version",
+)
+async def save_storyboard(
+    run_id: uuid.UUID, data: Storyboard, user: CurrentUserDep, session: DbSessionDep
+) -> OutputRead:
+    run = await campaign_service.get_run_for_user(session, run_id, user.id)
+    target = float(run.brief_snapshot["duration_seconds"])
+    data.timing_adjusted = normalize_timeline(data.scenes, target)
+    data.total_duration_seconds = target
+    for scene in data.scenes:
+        scene.image_prompt.aspect_ratio = run.brief_snapshot["video_format"]
+    output = await campaign_service.save_human_output(
+        session, run, user, OutputType.STORYBOARD, data.model_dump()
+    )
+    return _output_read(output, output.version)
 
 
 VersionQuery = Annotated[int | None, Query(ge=1, description="Default: latest version")]

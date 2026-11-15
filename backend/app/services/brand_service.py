@@ -84,9 +84,7 @@ async def list_brands(
         query = query.where(Brand.name.ilike(f"%{_escape_like(search)}%", escape="\\"))
 
     total = await session.scalar(select(func.count()).select_from(query.subquery()))
-    brands = await session.scalars(
-        query.order_by(Brand.name, Brand.id).limit(limit).offset(offset)
-    )
+    brands = await session.scalars(query.order_by(Brand.name, Brand.id).limit(limit).offset(offset))
     return list(brands), total or 0
 
 

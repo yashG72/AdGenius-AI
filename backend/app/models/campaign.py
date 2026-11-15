@@ -96,9 +96,7 @@ class CampaignRun(UUIDPrimaryKeyMixin, TimestampMixin, Base):
     __tablename__ = "campaign_runs"
     __table_args__ = (UniqueConstraint("campaign_id", "version"),)
 
-    campaign_id: Mapped[uuid.UUID] = mapped_column(
-        ForeignKey("campaigns.id", ondelete="CASCADE")
-    )
+    campaign_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("campaigns.id", ondelete="CASCADE"))
     organization_id: Mapped[uuid.UUID] = mapped_column(
         ForeignKey("organizations.id", ondelete="CASCADE"), index=True
     )
@@ -127,9 +125,7 @@ class AgentRun(UUIDPrimaryKeyMixin, Base):
     __tablename__ = "agent_runs"
     __table_args__ = (UniqueConstraint("run_id", "sequence"),)
 
-    run_id: Mapped[uuid.UUID] = mapped_column(
-        ForeignKey("campaign_runs.id", ondelete="CASCADE")
-    )
+    run_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("campaign_runs.id", ondelete="CASCADE"))
     sequence: Mapped[int] = mapped_column(Integer)
     agent: Mapped[str] = mapped_column(String(50))
     status: Mapped[str] = mapped_column(String(20))
@@ -144,12 +140,15 @@ class CampaignOutput(UUIDPrimaryKeyMixin, Base):
     __tablename__ = "campaign_outputs"
     __table_args__ = (UniqueConstraint("run_id", "output_type", "version"),)
 
-    run_id: Mapped[uuid.UUID] = mapped_column(
-        ForeignKey("campaign_runs.id", ondelete="CASCADE")
-    )
+    run_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("campaign_runs.id", ondelete="CASCADE"))
     output_type: Mapped[OutputType] = mapped_column(_pg_enum(OutputType, "output_type"))
     version: Mapped[int] = mapped_column(Integer)
     content: Mapped[dict[str, Any]] = mapped_column(JSONB)
+    # "agent" = produced by the workflow; "human" = saved from the script/storyboard editor.
+    source: Mapped[str] = mapped_column(String(20), default="agent", server_default="agent")
+    created_by_id: Mapped[uuid.UUID | None] = mapped_column(
+        ForeignKey("users.id", ondelete="SET NULL")
+    )
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=text("now()")
     )

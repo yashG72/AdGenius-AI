@@ -286,6 +286,57 @@ async def decide(
 
 # ---------- Outputs ----------
 
+EDITABLE_STATUSES = (RunStatus.COMPLETED, RunStatus.NEEDS_REVIEW)
+
+
+async def save_human_output(
+    session: AsyncSession,
+    run: CampaignRun,
+    user: User,
+    output_type: OutputType,
+    content: dict,
+) -> CampaignOutput:
+    """Store an edited script/storyboard as a NEW version (previous versions are kept).
+
+    Only finished runs can be edited: while the workflow is running, the agents own the
+    outputs and a human edit could be silently superseded.
+    """
+    if run.status not in EDITABLE_STATUSES:
+        raise ConflictError(
+            f"Outputs can be edited once the run has finished (status: {run.status.value})."
+        )
+    version = (
+        await session.scalar(
+            select(func.max(CampaignOutput.version)).where(
+                CampaignOutput.run_id == run.id, CampaignOutput.output_type == output_type
+            )
+        )
+        or 0
+    ) + 1
+    output = CampaignOutput(
+        run_id=run.id,
+        output_type=output_type,
+        version=version,
+        content=content,
+        source="human",
+        created_by_id=user.id,
+    )
+    session.add(output)
+    await session.commit()
+    await session.refresh(output)
+    return output
+
+
+async def latest_output_content(
+    session: AsyncSession, run_id: uuid.UUID, output_type: OutputType
+) -> dict | None:
+    return await session.scalar(
+        select(CampaignOutput.content)
+        .where(CampaignOutput.run_id == run_id, CampaignOutput.output_type == output_type)
+        .order_by(CampaignOutput.version.desc())
+        .limit(1)
+    )
+
 
 async def output_index(
     session: AsyncSession, run_id: uuid.UUID

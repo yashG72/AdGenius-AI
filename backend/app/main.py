@@ -63,7 +63,9 @@ def create_app() -> FastAPI:
         allow_credentials=True,
         allow_methods=["*"],
         allow_headers=["*"],
-        expose_headers=[REQUEST_ID_HEADER],
+        # Browsers hide response headers from cross-origin JavaScript unless exposed here.
+        # Content-Disposition carries the PDF export's filename.
+        expose_headers=[REQUEST_ID_HEADER, "Content-Disposition"],
     )
 
     register_exception_handlers(app)

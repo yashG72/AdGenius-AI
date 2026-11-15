@@ -106,7 +106,9 @@
   --border: oklch(1 0 0 / 9%);
   --input: oklch(1 0 0 / 13%);
   --ring: oklch(0.80 0.15 75 / 60%);
-  --chart-1: oklch(0.80 0.15 75);
+  /* Data marks: amber one step darker than --primary - validated for the dark band
+     (dataviz validate_palette.js: L 0.66 in [0.48, 0.67], >= 3:1 on the card surface). */
+  --chart-1: oklch(0.66 0.15 72);
   --chart-2: oklch(0.70 0.12 160);
   --chart-3: oklch(0.65 0.13 250);
   --chart-4: oklch(0.72 0.14 20);
