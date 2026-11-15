@@ -5,8 +5,9 @@ Specialized AI agents research a brand (RAG over uploaded documents) and its com
 (live web search), develop creative concepts, write scripts, build storyboards with
 image-generation prompts, and critique the result before a human approves it.
 
-> **Status:** Phase 9 (PDF export, evaluation & dashboard analytics, tracing) complete —
-> the backend is feature-complete; the Next.js frontend is next. See [docs/RAG_EVALUATION.md](docs/RAG_EVALUATION.md)
+> **Status:** Phase 10 complete — backend feature-complete; the Next.js frontend covers auth,
+> workspaces, dashboard, brands, knowledge base and settings. Campaign screens are next.
+> Frontend docs: [frontend/README.md](frontend/README.md). See [docs/RAG_EVALUATION.md](docs/RAG_EVALUATION.md)
 > for how retrieval settings were chosen. See [docs/ROADMAP.md](docs/ROADMAP.md) for the phase plan.
 
 ## Tech stack
@@ -43,7 +44,10 @@ AdGenius-AI/
 │   ├── evals/               Labelled datasets for evaluation
 │   ├── scripts/             CLI tools (e.g. scripts/eval_retrieval.py)
 │   └── tests/               pytest suite (runs against a real test database)
-├── frontend/                Next.js app (added in phase 10)
+├── frontend/                Next.js 16 app (TypeScript, Tailwind, shadcn/ui, TanStack Query)
+│   ├── src/app/             Routes: (auth), orgs/[orgId]/…, api/auth/* (cookie handlers)
+│   ├── src/lib/             Typed API client, auth, query hooks
+│   └── e2e/                 Playwright smoke test
 └── docs/                    Roadmap and design notes
 ```
 

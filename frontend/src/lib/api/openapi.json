@@ -1,0 +1,6561 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "AdGenius AI",
+    "version": "0.1.0"
+  },
+  "paths": {
+    "/api/v1/health": {
+      "get": {
+        "tags": [
+          "health"
+        ],
+        "summary": "Liveness check",
+        "operationId": "health_check_api_v1_health_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HealthResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/health/ready": {
+      "get": {
+        "tags": [
+          "health"
+        ],
+        "summary": "Readiness check (database, Redis, Qdrant)",
+        "operationId": "readiness_check_api_v1_health_ready_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReadinessResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "A dependency is down",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/auth/register": {
+      "post": {
+        "tags": [
+          "auth"
+        ],
+        "summary": "Register",
+        "operationId": "register_api_v1_auth_register_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RegisterRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserRead"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/auth/login": {
+      "post": {
+        "tags": [
+          "auth"
+        ],
+        "summary": "Login",
+        "operationId": "login_api_v1_auth_login_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LoginRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TokenResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/auth/refresh": {
+      "post": {
+        "tags": [
+          "auth"
+        ],
+        "summary": "Refresh",
+        "operationId": "refresh_api_v1_auth_refresh_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RefreshRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TokenResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/auth/logout": {
+      "post": {
+        "tags": [
+          "auth"
+        ],
+        "summary": "Logout",
+        "operationId": "logout_api_v1_auth_logout_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RefreshRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "description": "Validation error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/auth/me": {
+      "get": {
+        "tags": [
+          "auth"
+        ],
+        "summary": "Read Me",
+        "operationId": "read_me_api_v1_auth_me_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MeResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      },
+      "patch": {
+        "tags": [
+          "auth"
+        ],
+        "summary": "Update Me",
+        "operationId": "update_me_api_v1_auth_me_patch",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UserUpdate"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserRead"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/api/v1/auth/change-password": {
+      "post": {
+        "tags": [
+          "auth"
+        ],
+        "summary": "Change Password",
+        "operationId": "change_password_api_v1_auth_change_password_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ChangePasswordRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "description": "Validation error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/api/v1/organizations": {
+      "get": {
+        "tags": [
+          "organizations"
+        ],
+        "summary": "List Organizations",
+        "description": "Only organizations the current user belongs to.",
+        "operationId": "list_organizations_api_v1_organizations_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ListResponse_OrganizationWithRole_"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      },
+      "post": {
+        "tags": [
+          "organizations"
+        ],
+        "summary": "Create Organization",
+        "description": "Create a workspace. The creator becomes its owner.",
+        "operationId": "create_organization_api_v1_organizations_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/OrganizationCreate"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OrganizationWithRole"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/api/v1/organizations/{organization_id}": {
+      "get": {
+        "tags": [
+          "organizations"
+        ],
+        "summary": "Get Organization",
+        "operationId": "get_organization_api_v1_organizations__organization_id__get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "organization_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Organization Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OrganizationWithRole"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "patch": {
+        "tags": [
+          "organizations"
+        ],
+        "summary": "Update Organization",
+        "operationId": "update_organization_api_v1_organizations__organization_id__patch",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "organization_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Organization Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/OrganizationUpdate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OrganizationWithRole"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/organizations/{organization_id}/members": {
+      "get": {
+        "tags": [
+          "organizations"
+        ],
+        "summary": "List Members",
+        "operationId": "list_members_api_v1_organizations__organization_id__members_get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "organization_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Organization Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ListResponse_MemberRead_"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "organizations"
+        ],
+        "summary": "Add Member",
+        "description": "Add an existing registered user by email (email invitations come later).",
+        "operationId": "add_member_api_v1_organizations__organization_id__members_post",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "organization_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Organization Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MemberAdd"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MemberRead"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/organizations/{organization_id}/members/{user_id}": {
+      "patch": {
+        "tags": [
+          "organizations"
+        ],
+        "summary": "Change Member Role",
+        "operationId": "change_member_role_api_v1_organizations__organization_id__members__user_id__patch",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "user_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "User Id"
+            }
+          },
+          {
+            "name": "organization_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Organization Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MemberRoleUpdate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MemberRead"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "organizations"
+        ],
+        "summary": "Remove Member",
+        "description": "Admins remove others; any member can remove themselves (leave).",
+        "operationId": "remove_member_api_v1_organizations__organization_id__members__user_id__delete",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "user_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "User Id"
+            }
+          },
+          {
+            "name": "organization_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Organization Id"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "description": "Validation error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/brands": {
+      "post": {
+        "tags": [
+          "brands"
+        ],
+        "summary": "Create Brand",
+        "operationId": "create_brand_api_v1_brands_post",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BrandCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BrandRead"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "tags": [
+          "brands"
+        ],
+        "summary": "List Brands",
+        "operationId": "list_brands_api_v1_brands_get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "search",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "maxLength": 100
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Filter by name",
+              "title": "Search"
+            },
+            "description": "Filter by name"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 100,
+              "minimum": 1,
+              "default": 20,
+              "title": "Limit"
+            }
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "default": 0,
+              "title": "Offset"
+            }
+          },
+          {
+            "name": "organization_id",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Organization Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PageResponse_BrandSummary_"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/brands/{brand_id}": {
+      "get": {
+        "tags": [
+          "brands"
+        ],
+        "summary": "Get Brand",
+        "operationId": "get_brand_api_v1_brands__brand_id__get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "brand_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Brand Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BrandRead"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "patch": {
+        "tags": [
+          "brands"
+        ],
+        "summary": "Update Brand",
+        "operationId": "update_brand_api_v1_brands__brand_id__patch",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "brand_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Brand Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BrandUpdate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BrandRead"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "brands"
+        ],
+        "summary": "Delete Brand",
+        "operationId": "delete_brand_api_v1_brands__brand_id__delete",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "brand_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Brand Id"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "description": "Validation error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/brands/{brand_id}/documents": {
+      "post": {
+        "tags": [
+          "documents"
+        ],
+        "summary": "Upload a PDF, DOCX, TXT or CSV document",
+        "operationId": "upload_document_api_v1_brands__brand_id__documents_post",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "brand_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Brand Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/Body_upload_document_api_v1_brands__brand_id__documents_post"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DocumentRead"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "tags": [
+          "documents"
+        ],
+        "summary": "List Documents",
+        "operationId": "list_documents_api_v1_brands__brand_id__documents_get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "brand_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Brand Id"
+            }
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "$ref": "#/components/schemas/DocumentStatus"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Status"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 100,
+              "minimum": 1,
+              "default": 20,
+              "title": "Limit"
+            }
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "default": 0,
+              "title": "Offset"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PageResponse_DocumentRead_"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/documents/{document_id}": {
+      "get": {
+        "tags": [
+          "documents"
+        ],
+        "summary": "Get Document",
+        "operationId": "get_document_api_v1_documents__document_id__get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "document_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Document Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DocumentRead"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "documents"
+        ],
+        "summary": "Delete Document",
+        "operationId": "delete_document_api_v1_documents__document_id__delete",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "document_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Document Id"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "description": "Validation error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/documents/{document_id}/reindex": {
+      "post": {
+        "tags": [
+          "documents"
+        ],
+        "summary": "Re-run ingestion (e.g. after a failure or a chunking-settings change)",
+        "operationId": "reindex_document_api_v1_documents__document_id__reindex_post",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "document_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Document Id"
+            }
+          }
+        ],
+        "responses": {
+          "202": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DocumentRead"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/brands/{brand_id}/knowledge/search": {
+      "post": {
+        "tags": [
+          "knowledge"
+        ],
+        "summary": "Hybrid search over brand documents",
+        "operationId": "search_api_v1_brands__brand_id__knowledge_search_post",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "brand_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Brand Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SearchRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SearchResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/brands/{brand_id}/knowledge/ask": {
+      "post": {
+        "tags": [
+          "knowledge"
+        ],
+        "summary": "Answer a question with citations",
+        "operationId": "ask_api_v1_brands__brand_id__knowledge_ask_post",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "brand_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Brand Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AskRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AskResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/brands/{brand_id}/research/competitors": {
+      "post": {
+        "tags": [
+          "research"
+        ],
+        "summary": "Research competitors and market trends on the live web (cited)",
+        "operationId": "research_competitors_api_v1_brands__brand_id__research_competitors_post",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "brand_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Brand Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CompetitorResearchRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CompetitorReport"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/campaigns": {
+      "post": {
+        "tags": [
+          "campaigns"
+        ],
+        "summary": "Create Campaign",
+        "operationId": "create_campaign_api_v1_campaigns_post",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CampaignCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CampaignRead"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "tags": [
+          "campaigns"
+        ],
+        "summary": "List Campaigns",
+        "operationId": "list_campaigns_api_v1_campaigns_get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "brand_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Brand Id"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 100,
+              "minimum": 1,
+              "default": 20,
+              "title": "Limit"
+            }
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "default": 0,
+              "title": "Offset"
+            }
+          },
+          {
+            "name": "organization_id",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Organization Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PageResponse_CampaignRead_"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/campaigns/{campaign_id}": {
+      "get": {
+        "tags": [
+          "campaigns"
+        ],
+        "summary": "Get Campaign",
+        "operationId": "get_campaign_api_v1_campaigns__campaign_id__get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "campaign_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Campaign Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CampaignRead"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "patch": {
+        "tags": [
+          "campaigns"
+        ],
+        "summary": "Update Campaign",
+        "operationId": "update_campaign_api_v1_campaigns__campaign_id__patch",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "campaign_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Campaign Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CampaignUpdate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CampaignRead"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/campaigns/{campaign_id}/generate": {
+      "post": {
+        "tags": [
+          "campaigns"
+        ],
+        "summary": "Start a new versioned generation run (runs in the background worker)",
+        "operationId": "generate_api_v1_campaigns__campaign_id__generate_post",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "campaign_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Campaign Id"
+            }
+          }
+        ],
+        "responses": {
+          "202": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RunSummary"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/campaigns/{campaign_id}/runs": {
+      "get": {
+        "tags": [
+          "campaigns"
+        ],
+        "summary": "List Runs",
+        "operationId": "list_runs_api_v1_campaigns__campaign_id__runs_get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "campaign_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Campaign Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ListResponse_RunSummary_"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/campaign-runs/{run_id}": {
+      "get": {
+        "tags": [
+          "campaign runs"
+        ],
+        "summary": "Get Run",
+        "operationId": "get_run_api_v1_campaign_runs__run_id__get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "run_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Run Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RunDetail"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/campaign-runs/{run_id}/regenerate": {
+      "post": {
+        "tags": [
+          "campaign runs"
+        ],
+        "summary": "Start a NEW run version from the campaign's current brief (old run is kept)",
+        "operationId": "regenerate_api_v1_campaign_runs__run_id__regenerate_post",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "run_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Run Id"
+            }
+          }
+        ],
+        "responses": {
+          "202": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RunSummary"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/campaign-runs/{run_id}/retry": {
+      "post": {
+        "tags": [
+          "campaign runs"
+        ],
+        "summary": "Continue a failed run from its last checkpoint",
+        "operationId": "retry_api_v1_campaign_runs__run_id__retry_post",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "run_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Run Id"
+            }
+          }
+        ],
+        "responses": {
+          "202": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RunSummary"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/campaign-runs/{run_id}/events": {
+      "get": {
+        "tags": [
+          "campaign runs"
+        ],
+        "summary": "Live execution updates (text/event-stream)",
+        "description": "Streams the run's progress until it finishes.\n\n- `agent`  one execution-trace step (id = its sequence number)\n- `status` whenever the run status changes (incl. awaiting_approval)\n- `end`    the run reached a final status; the stream closes\nReconnecting with the Last-Event-ID header resumes after that step.",
+        "operationId": "run_events_api_v1_campaign_runs__run_id__events_get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "run_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Run Id"
+            }
+          },
+          {
+            "name": "Last-Event-ID",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Last-Event-Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "SSE stream with `agent`, `status` and `end` events",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/campaign-runs/{run_id}/approvals": {
+      "get": {
+        "tags": [
+          "campaign runs"
+        ],
+        "summary": "List Approvals",
+        "operationId": "list_approvals_api_v1_campaign_runs__run_id__approvals_get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "run_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Run Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ListResponse_ApprovalRead_"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/approvals/{approval_id}/approve": {
+      "post": {
+        "tags": [
+          "campaign runs"
+        ],
+        "summary": "Approve",
+        "operationId": "approve_api_v1_approvals__approval_id__approve_post",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "approval_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Approval Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ApproveRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApprovalRead"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/approvals/{approval_id}/reject": {
+      "post": {
+        "tags": [
+          "campaign runs"
+        ],
+        "summary": "Reject",
+        "operationId": "reject_api_v1_approvals__approval_id__reject_post",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "approval_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Approval Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RejectRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApprovalRead"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/campaign-runs/{run_id}/evaluation-summary": {
+      "get": {
+        "tags": [
+          "campaign runs"
+        ],
+        "summary": "Evaluation Summary",
+        "description": "Score trend across Critic iterations, issues, revisions and agent timings.",
+        "operationId": "evaluation_summary_api_v1_campaign_runs__run_id__evaluation_summary_get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "run_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Run Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EvaluationSummary"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/campaign-runs/{run_id}/export.pdf": {
+      "get": {
+        "tags": [
+          "campaign runs"
+        ],
+        "summary": "Download the finished campaign as a PDF",
+        "operationId": "export_pdf_api_v1_campaign_runs__run_id__export_pdf_get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "run_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Run Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/pdf": {}
+            }
+          },
+          "422": {
+            "description": "Validation error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/campaign-runs/{run_id}/outputs/{output_type}": {
+      "get": {
+        "tags": [
+          "campaign runs"
+        ],
+        "summary": "Get Output",
+        "operationId": "get_output_api_v1_campaign_runs__run_id__outputs__output_type__get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "run_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Run Id"
+            }
+          },
+          {
+            "name": "output_type",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/OutputType"
+            }
+          },
+          {
+            "name": "version",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer",
+                  "minimum": 1
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Default: latest version",
+              "title": "Version"
+            },
+            "description": "Default: latest version"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OutputRead"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/campaign-runs/{run_id}/concepts": {
+      "get": {
+        "tags": [
+          "campaign runs"
+        ],
+        "summary": "Latest (or ?version=) concepts",
+        "operationId": "get_concepts_api_v1_campaign_runs__run_id__concepts_get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "run_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Run Id"
+            }
+          },
+          {
+            "name": "version",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer",
+                  "minimum": 1
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Default: latest version",
+              "title": "Version"
+            },
+            "description": "Default: latest version"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OutputRead"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/campaign-runs/{run_id}/script": {
+      "get": {
+        "tags": [
+          "campaign runs"
+        ],
+        "summary": "Latest (or ?version=) script",
+        "operationId": "get_script_api_v1_campaign_runs__run_id__script_get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "run_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Run Id"
+            }
+          },
+          {
+            "name": "version",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer",
+                  "minimum": 1
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Default: latest version",
+              "title": "Version"
+            },
+            "description": "Default: latest version"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OutputRead"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/campaign-runs/{run_id}/storyboard": {
+      "get": {
+        "tags": [
+          "campaign runs"
+        ],
+        "summary": "Latest (or ?version=) storyboard",
+        "operationId": "get_storyboard_api_v1_campaign_runs__run_id__storyboard_get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "run_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Run Id"
+            }
+          },
+          {
+            "name": "version",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer",
+                  "minimum": 1
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Default: latest version",
+              "title": "Version"
+            },
+            "description": "Default: latest version"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OutputRead"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/campaign-runs/{run_id}/evaluation": {
+      "get": {
+        "tags": [
+          "campaign runs"
+        ],
+        "summary": "Latest (or ?version=) evaluation",
+        "operationId": "get_evaluation_api_v1_campaign_runs__run_id__evaluation_get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "run_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Run Id"
+            }
+          },
+          {
+            "name": "version",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer",
+                  "minimum": 1
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Default: latest version",
+              "title": "Version"
+            },
+            "description": "Default: latest version"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OutputRead"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/organizations/{organization_id}/dashboard": {
+      "get": {
+        "tags": [
+          "dashboard"
+        ],
+        "summary": "Dashboard",
+        "operationId": "dashboard_api_v1_organizations__organization_id__dashboard_get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "organization_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Organization Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Dashboard"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "AgentActivity": {
+        "properties": {
+          "agent": {
+            "type": "string",
+            "title": "Agent"
+          },
+          "steps": {
+            "type": "integer",
+            "title": "Steps"
+          },
+          "average_ms": {
+            "type": "number",
+            "title": "Average Ms"
+          },
+          "failures": {
+            "type": "integer",
+            "title": "Failures"
+          }
+        },
+        "type": "object",
+        "required": [
+          "agent",
+          "steps",
+          "average_ms",
+          "failures"
+        ],
+        "title": "AgentActivity"
+      },
+      "AgentRunRead": {
+        "properties": {
+          "sequence": {
+            "type": "integer",
+            "title": "Sequence"
+          },
+          "agent": {
+            "type": "string",
+            "title": "Agent"
+          },
+          "status": {
+            "type": "string",
+            "title": "Status"
+          },
+          "summary": {
+            "type": "string",
+            "title": "Summary"
+          },
+          "started_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Started At"
+          },
+          "duration_ms": {
+            "type": "number",
+            "title": "Duration Ms"
+          }
+        },
+        "type": "object",
+        "required": [
+          "sequence",
+          "agent",
+          "status",
+          "summary",
+          "started_at",
+          "duration_ms"
+        ],
+        "title": "AgentRunRead"
+      },
+      "AgentTiming": {
+        "properties": {
+          "agent": {
+            "type": "string",
+            "title": "Agent"
+          },
+          "runs": {
+            "type": "integer",
+            "title": "Runs"
+          },
+          "total_ms": {
+            "type": "number",
+            "title": "Total Ms"
+          }
+        },
+        "type": "object",
+        "required": [
+          "agent",
+          "runs",
+          "total_ms"
+        ],
+        "title": "AgentTiming"
+      },
+      "ApprovalRead": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "run_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Run Id"
+          },
+          "kind": {
+            "type": "string",
+            "title": "Kind"
+          },
+          "round": {
+            "type": "integer",
+            "title": "Round"
+          },
+          "status": {
+            "$ref": "#/components/schemas/ApprovalStatus"
+          },
+          "payload": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Payload"
+          },
+          "decision": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Decision"
+          },
+          "decided_by_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Decided By Id"
+          },
+          "decided_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Decided At"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "run_id",
+          "kind",
+          "round",
+          "status",
+          "payload",
+          "decision",
+          "decided_by_id",
+          "decided_at",
+          "created_at"
+        ],
+        "title": "ApprovalRead"
+      },
+      "ApprovalStatus": {
+        "type": "string",
+        "enum": [
+          "pending",
+          "approved",
+          "rejected"
+        ],
+        "title": "ApprovalStatus"
+      },
+      "ApproveRequest": {
+        "properties": {
+          "concept_id": {
+            "type": "string",
+            "maxLength": 20,
+            "minLength": 1,
+            "title": "Concept Id"
+          },
+          "feedback": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 2000
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Feedback"
+          }
+        },
+        "type": "object",
+        "required": [
+          "concept_id"
+        ],
+        "title": "ApproveRequest"
+      },
+      "AskRequest": {
+        "properties": {
+          "question": {
+            "type": "string",
+            "maxLength": 1000,
+            "minLength": 1,
+            "title": "Question"
+          },
+          "document_types": {
+            "items": {
+              "$ref": "#/components/schemas/DocumentType"
+            },
+            "type": "array",
+            "title": "Document Types"
+          }
+        },
+        "type": "object",
+        "required": [
+          "question"
+        ],
+        "title": "AskRequest"
+      },
+      "AskResponse": {
+        "properties": {
+          "answer": {
+            "type": "string",
+            "title": "Answer"
+          },
+          "found": {
+            "type": "boolean",
+            "title": "Found"
+          },
+          "citations": {
+            "items": {
+              "$ref": "#/components/schemas/Citation"
+            },
+            "type": "array",
+            "title": "Citations"
+          },
+          "queries": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Queries"
+          },
+          "timings_ms": {
+            "additionalProperties": {
+              "type": "number"
+            },
+            "type": "object",
+            "title": "Timings Ms"
+          }
+        },
+        "type": "object",
+        "required": [
+          "answer",
+          "found",
+          "citations",
+          "queries",
+          "timings_ms"
+        ],
+        "title": "AskResponse"
+      },
+      "Body_upload_document_api_v1_brands__brand_id__documents_post": {
+        "properties": {
+          "file": {
+            "type": "string",
+            "contentMediaType": "application/octet-stream",
+            "title": "File",
+            "description": "PDF, DOCX, TXT or CSV"
+          },
+          "document_type": {
+            "$ref": "#/components/schemas/DocumentType",
+            "default": "other"
+          }
+        },
+        "type": "object",
+        "required": [
+          "file"
+        ],
+        "title": "Body_upload_document_api_v1_brands__brand_id__documents_post"
+      },
+      "BrandColor": {
+        "properties": {
+          "name": {
+            "type": "string",
+            "maxLength": 50,
+            "minLength": 1,
+            "title": "Name"
+          },
+          "hex": {
+            "type": "string",
+            "pattern": "^#[0-9A-Fa-f]{6}$",
+            "title": "Hex"
+          }
+        },
+        "type": "object",
+        "required": [
+          "name",
+          "hex"
+        ],
+        "title": "BrandColor"
+      },
+      "BrandCreate": {
+        "properties": {
+          "description": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 10000
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Description"
+          },
+          "industry": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 100
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Industry"
+          },
+          "website": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 2083,
+                "minLength": 1,
+                "format": "uri"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Website"
+          },
+          "product_information": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 10000
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Product Information"
+          },
+          "target_audience": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 10000
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Target Audience"
+          },
+          "brand_personality": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 10000
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Brand Personality"
+          },
+          "brand_voice": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 10000
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Brand Voice"
+          },
+          "positioning": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 10000
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Positioning"
+          },
+          "messaging": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 10000
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Messaging"
+          },
+          "brand_colors": {
+            "items": {
+              "$ref": "#/components/schemas/BrandColor"
+            },
+            "type": "array",
+            "maxItems": 20,
+            "title": "Brand Colors"
+          },
+          "marketing_objectives": {
+            "items": {
+              "type": "string",
+              "maxLength": 500,
+              "minLength": 1
+            },
+            "type": "array",
+            "maxItems": 50,
+            "title": "Marketing Objectives"
+          },
+          "content_restrictions": {
+            "items": {
+              "type": "string",
+              "maxLength": 500,
+              "minLength": 1
+            },
+            "type": "array",
+            "maxItems": 50,
+            "title": "Content Restrictions",
+            "description": "Claims/messaging the brand must never use (checked by the Critic agent)."
+          },
+          "competitors": {
+            "items": {
+              "$ref": "#/components/schemas/Competitor"
+            },
+            "type": "array",
+            "maxItems": 30,
+            "title": "Competitors"
+          },
+          "social_links": {
+            "items": {
+              "$ref": "#/components/schemas/SocialLink"
+            },
+            "type": "array",
+            "maxItems": 20,
+            "title": "Social Links"
+          },
+          "organization_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Organization Id"
+          },
+          "name": {
+            "type": "string",
+            "maxLength": 255,
+            "minLength": 1,
+            "title": "Name"
+          }
+        },
+        "type": "object",
+        "required": [
+          "organization_id",
+          "name"
+        ],
+        "title": "BrandCreate"
+      },
+      "BrandRead": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "organization_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Organization Id"
+          },
+          "created_by_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Created By Id"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "description": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Description"
+          },
+          "industry": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Industry"
+          },
+          "website": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Website"
+          },
+          "product_information": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Product Information"
+          },
+          "target_audience": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Target Audience"
+          },
+          "brand_personality": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Brand Personality"
+          },
+          "brand_voice": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Brand Voice"
+          },
+          "positioning": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Positioning"
+          },
+          "messaging": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Messaging"
+          },
+          "brand_colors": {
+            "items": {
+              "$ref": "#/components/schemas/BrandColor"
+            },
+            "type": "array",
+            "title": "Brand Colors"
+          },
+          "marketing_objectives": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Marketing Objectives"
+          },
+          "content_restrictions": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Content Restrictions"
+          },
+          "competitors": {
+            "items": {
+              "$ref": "#/components/schemas/Competitor"
+            },
+            "type": "array",
+            "title": "Competitors"
+          },
+          "social_links": {
+            "items": {
+              "$ref": "#/components/schemas/SocialLink"
+            },
+            "type": "array",
+            "title": "Social Links"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Updated At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "organization_id",
+          "created_by_id",
+          "name",
+          "description",
+          "industry",
+          "website",
+          "product_information",
+          "target_audience",
+          "brand_personality",
+          "brand_voice",
+          "positioning",
+          "messaging",
+          "brand_colors",
+          "marketing_objectives",
+          "content_restrictions",
+          "competitors",
+          "social_links",
+          "created_at",
+          "updated_at"
+        ],
+        "title": "BrandRead"
+      },
+      "BrandSummary": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "organization_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Organization Id"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "industry": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Industry"
+          },
+          "description": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Description"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Updated At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "organization_id",
+          "name",
+          "industry",
+          "description",
+          "created_at",
+          "updated_at"
+        ],
+        "title": "BrandSummary",
+        "description": "Lightweight list item."
+      },
+      "BrandUpdate": {
+        "properties": {
+          "description": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 10000
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Description"
+          },
+          "industry": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 100
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Industry"
+          },
+          "website": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 2083,
+                "minLength": 1,
+                "format": "uri"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Website"
+          },
+          "product_information": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 10000
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Product Information"
+          },
+          "target_audience": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 10000
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Target Audience"
+          },
+          "brand_personality": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 10000
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Brand Personality"
+          },
+          "brand_voice": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 10000
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Brand Voice"
+          },
+          "positioning": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 10000
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Positioning"
+          },
+          "messaging": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 10000
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Messaging"
+          },
+          "brand_colors": {
+            "anyOf": [
+              {
+                "items": {
+                  "$ref": "#/components/schemas/BrandColor"
+                },
+                "type": "array",
+                "maxItems": 20
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Brand Colors"
+          },
+          "marketing_objectives": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string",
+                  "maxLength": 500,
+                  "minLength": 1
+                },
+                "type": "array",
+                "maxItems": 50
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Marketing Objectives"
+          },
+          "content_restrictions": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string",
+                  "maxLength": 500,
+                  "minLength": 1
+                },
+                "type": "array",
+                "maxItems": 50
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Content Restrictions"
+          },
+          "competitors": {
+            "anyOf": [
+              {
+                "items": {
+                  "$ref": "#/components/schemas/Competitor"
+                },
+                "type": "array",
+                "maxItems": 30
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Competitors"
+          },
+          "social_links": {
+            "anyOf": [
+              {
+                "items": {
+                  "$ref": "#/components/schemas/SocialLink"
+                },
+                "type": "array",
+                "maxItems": 20
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Social Links"
+          },
+          "name": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 255,
+                "minLength": 1
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Name"
+          }
+        },
+        "type": "object",
+        "title": "BrandUpdate",
+        "description": "Partial update: only fields present in the request are changed.\n\nSend `null` to clear a text field; send `[]` to clear a list."
+      },
+      "BriefFields": {
+        "properties": {
+          "objective": {
+            "type": "string",
+            "maxLength": 4000,
+            "title": "Objective",
+            "description": "Campaign objective, e.g. brand awareness."
+          },
+          "product_description": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 4000
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Product Description"
+          },
+          "marketing_objective": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 4000
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Marketing Objective"
+          },
+          "target_audience": {
+            "type": "string",
+            "maxLength": 4000,
+            "title": "Target Audience"
+          },
+          "platform": {
+            "type": "string",
+            "enum": [
+              "instagram",
+              "youtube",
+              "tiktok",
+              "facebook",
+              "linkedin",
+              "x",
+              "tv",
+              "web",
+              "other"
+            ],
+            "title": "Platform",
+            "default": "instagram"
+          },
+          "duration_seconds": {
+            "type": "integer",
+            "maximum": 180.0,
+            "minimum": 5.0,
+            "title": "Duration Seconds",
+            "default": 30
+          },
+          "language": {
+            "type": "string",
+            "maxLength": 300,
+            "title": "Language",
+            "default": "English"
+          },
+          "tone": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 300
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Tone"
+          },
+          "video_format": {
+            "type": "string",
+            "enum": [
+              "9:16",
+              "16:9",
+              "1:1",
+              "4:5"
+            ],
+            "title": "Video Format",
+            "default": "9:16"
+          },
+          "num_concepts": {
+            "type": "integer",
+            "maximum": 5.0,
+            "minimum": 1.0,
+            "title": "Num Concepts",
+            "default": 3
+          },
+          "budget": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 300
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Budget"
+          },
+          "additional_requirements": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 4000
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Additional Requirements"
+          },
+          "competitor_research": {
+            "type": "boolean",
+            "title": "Competitor Research",
+            "default": true
+          },
+          "competitor_focus": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 300
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Competitor Focus"
+          }
+        },
+        "type": "object",
+        "required": [
+          "objective",
+          "target_audience"
+        ],
+        "title": "BriefFields",
+        "description": "The creative brief itself (stored on the campaign; snapshotted on every run)."
+      },
+      "CampaignCreate": {
+        "properties": {
+          "brand_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Brand Id"
+          },
+          "name": {
+            "type": "string",
+            "maxLength": 300,
+            "minLength": 1,
+            "title": "Name"
+          },
+          "brief": {
+            "$ref": "#/components/schemas/BriefFields"
+          }
+        },
+        "type": "object",
+        "required": [
+          "brand_id",
+          "name",
+          "brief"
+        ],
+        "title": "CampaignCreate"
+      },
+      "CampaignRead": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "organization_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Organization Id"
+          },
+          "brand_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Brand Id"
+          },
+          "created_by_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Created By Id"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "brief": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Brief"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Updated At"
+          },
+          "latest_run": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/RunSummary"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "run_count": {
+            "type": "integer",
+            "title": "Run Count",
+            "default": 0
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "organization_id",
+          "brand_id",
+          "created_by_id",
+          "name",
+          "brief",
+          "created_at",
+          "updated_at"
+        ],
+        "title": "CampaignRead"
+      },
+      "CampaignUpdate": {
+        "properties": {
+          "name": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 300,
+                "minLength": 1
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Name"
+          },
+          "brief": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/BriefFields"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "type": "object",
+        "title": "CampaignUpdate",
+        "description": "Changes apply to FUTURE runs only - earlier runs keep their brief snapshot."
+      },
+      "ChangePasswordRequest": {
+        "properties": {
+          "current_password": {
+            "type": "string",
+            "maxLength": 128,
+            "title": "Current Password"
+          },
+          "new_password": {
+            "type": "string",
+            "maxLength": 128,
+            "minLength": 8,
+            "title": "New Password"
+          }
+        },
+        "type": "object",
+        "required": [
+          "current_password",
+          "new_password"
+        ],
+        "title": "ChangePasswordRequest"
+      },
+      "ChunkHit": {
+        "properties": {
+          "document_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Document Id"
+          },
+          "original_filename": {
+            "type": "string",
+            "title": "Original Filename"
+          },
+          "document_type": {
+            "type": "string",
+            "title": "Document Type"
+          },
+          "source_page": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Source Page"
+          },
+          "chunk_index": {
+            "type": "integer",
+            "title": "Chunk Index"
+          },
+          "text": {
+            "type": "string",
+            "title": "Text"
+          },
+          "fusion_score": {
+            "type": "number",
+            "title": "Fusion Score"
+          },
+          "rerank_score": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Rerank Score"
+          }
+        },
+        "type": "object",
+        "required": [
+          "document_id",
+          "original_filename",
+          "document_type",
+          "source_page",
+          "chunk_index",
+          "text",
+          "fusion_score",
+          "rerank_score"
+        ],
+        "title": "ChunkHit"
+      },
+      "Citation": {
+        "properties": {
+          "source": {
+            "type": "integer",
+            "title": "Source",
+            "description": "The [n] number used in the answer text."
+          },
+          "document_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Document Id"
+          },
+          "original_filename": {
+            "type": "string",
+            "title": "Original Filename"
+          },
+          "source_page": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Source Page"
+          },
+          "chunk_index": {
+            "type": "integer",
+            "title": "Chunk Index"
+          },
+          "excerpt": {
+            "type": "string",
+            "title": "Excerpt"
+          }
+        },
+        "type": "object",
+        "required": [
+          "source",
+          "document_id",
+          "original_filename",
+          "source_page",
+          "chunk_index",
+          "excerpt"
+        ],
+        "title": "Citation"
+      },
+      "Competitor": {
+        "properties": {
+          "name": {
+            "type": "string",
+            "maxLength": 255,
+            "minLength": 1,
+            "title": "Name"
+          },
+          "website": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 2083,
+                "minLength": 1,
+                "format": "uri"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Website"
+          },
+          "notes": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 2000
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Notes"
+          }
+        },
+        "type": "object",
+        "required": [
+          "name"
+        ],
+        "title": "Competitor"
+      },
+      "CompetitorInsight": {
+        "properties": {
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "positioning": {
+            "type": "string",
+            "title": "Positioning"
+          },
+          "messaging": {
+            "type": "string",
+            "title": "Messaging"
+          },
+          "notable_campaigns": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Notable Campaigns"
+          },
+          "sources": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Sources"
+          }
+        },
+        "type": "object",
+        "required": [
+          "name",
+          "positioning",
+          "messaging",
+          "notable_campaigns",
+          "sources"
+        ],
+        "title": "CompetitorInsight"
+      },
+      "CompetitorReport": {
+        "properties": {
+          "brand_name": {
+            "type": "string",
+            "title": "Brand Name"
+          },
+          "summary": {
+            "type": "string",
+            "title": "Summary"
+          },
+          "competitors": {
+            "items": {
+              "$ref": "#/components/schemas/CompetitorInsight"
+            },
+            "type": "array",
+            "title": "Competitors"
+          },
+          "market_trends": {
+            "items": {
+              "$ref": "#/components/schemas/MarketTrend"
+            },
+            "type": "array",
+            "title": "Market Trends"
+          },
+          "opportunities": {
+            "items": {
+              "$ref": "#/components/schemas/Opportunity"
+            },
+            "type": "array",
+            "title": "Opportunities"
+          },
+          "sources": {
+            "items": {
+              "$ref": "#/components/schemas/SourceRef"
+            },
+            "type": "array",
+            "title": "Sources"
+          },
+          "queries": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Queries"
+          },
+          "failed_queries": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Failed Queries"
+          },
+          "unsupported_claims_removed": {
+            "type": "integer",
+            "title": "Unsupported Claims Removed"
+          },
+          "search_calls": {
+            "type": "integer",
+            "title": "Search Calls",
+            "description": "Provider calls made (cache hits are free)."
+          },
+          "generated_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Generated At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "brand_name",
+          "summary",
+          "competitors",
+          "market_trends",
+          "opportunities",
+          "sources",
+          "queries",
+          "failed_queries",
+          "unsupported_claims_removed",
+          "search_calls",
+          "generated_at"
+        ],
+        "title": "CompetitorReport"
+      },
+      "CompetitorResearchRequest": {
+        "properties": {
+          "focus": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 500
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Focus",
+            "description": "Optional angle, e.g. 'Instagram campaigns aimed at students'."
+          },
+          "max_queries": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "maximum": 15.0,
+                "minimum": 1.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Max Queries"
+          }
+        },
+        "type": "object",
+        "title": "CompetitorResearchRequest"
+      },
+      "Dashboard": {
+        "properties": {
+          "organization_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Organization Id"
+          },
+          "totals": {
+            "$ref": "#/components/schemas/DashboardTotals"
+          },
+          "quality": {
+            "$ref": "#/components/schemas/DashboardQuality"
+          },
+          "recent_campaigns": {
+            "items": {
+              "$ref": "#/components/schemas/CampaignRead"
+            },
+            "type": "array",
+            "title": "Recent Campaigns"
+          },
+          "agent_activity": {
+            "items": {
+              "$ref": "#/components/schemas/AgentActivity"
+            },
+            "type": "array",
+            "title": "Agent Activity"
+          },
+          "recent_activity": {
+            "items": {
+              "$ref": "#/components/schemas/RecentStep"
+            },
+            "type": "array",
+            "title": "Recent Activity"
+          },
+          "recent_documents": {
+            "items": {
+              "$ref": "#/components/schemas/RecentDocument"
+            },
+            "type": "array",
+            "title": "Recent Documents"
+          }
+        },
+        "type": "object",
+        "required": [
+          "organization_id",
+          "totals",
+          "quality",
+          "recent_campaigns",
+          "agent_activity",
+          "recent_activity",
+          "recent_documents"
+        ],
+        "title": "Dashboard"
+      },
+      "DashboardQuality": {
+        "properties": {
+          "evaluated_runs": {
+            "type": "integer",
+            "title": "Evaluated Runs"
+          },
+          "average_score": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Average Score"
+          },
+          "approval_rate": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Approval Rate"
+          },
+          "first_pass_rate": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "First Pass Rate"
+          },
+          "average_revisions": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Average Revisions"
+          }
+        },
+        "type": "object",
+        "required": [
+          "evaluated_runs",
+          "average_score",
+          "approval_rate",
+          "first_pass_rate",
+          "average_revisions"
+        ],
+        "title": "DashboardQuality"
+      },
+      "DashboardTotals": {
+        "properties": {
+          "brands": {
+            "type": "integer",
+            "title": "Brands"
+          },
+          "campaigns": {
+            "type": "integer",
+            "title": "Campaigns"
+          },
+          "documents": {
+            "type": "integer",
+            "title": "Documents"
+          },
+          "documents_indexed": {
+            "type": "integer",
+            "title": "Documents Indexed"
+          },
+          "runs": {
+            "type": "integer",
+            "title": "Runs"
+          },
+          "runs_completed": {
+            "type": "integer",
+            "title": "Runs Completed"
+          },
+          "runs_active": {
+            "type": "integer",
+            "title": "Runs Active"
+          },
+          "runs_awaiting_approval": {
+            "type": "integer",
+            "title": "Runs Awaiting Approval"
+          },
+          "runs_needing_review": {
+            "type": "integer",
+            "title": "Runs Needing Review"
+          },
+          "runs_failed": {
+            "type": "integer",
+            "title": "Runs Failed"
+          }
+        },
+        "type": "object",
+        "required": [
+          "brands",
+          "campaigns",
+          "documents",
+          "documents_indexed",
+          "runs",
+          "runs_completed",
+          "runs_active",
+          "runs_awaiting_approval",
+          "runs_needing_review",
+          "runs_failed"
+        ],
+        "title": "DashboardTotals"
+      },
+      "DocumentFormat": {
+        "type": "string",
+        "enum": [
+          "pdf",
+          "docx",
+          "txt",
+          "csv"
+        ],
+        "title": "DocumentFormat"
+      },
+      "DocumentRead": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "organization_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Organization Id"
+          },
+          "brand_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Brand Id"
+          },
+          "uploaded_by_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Uploaded By Id"
+          },
+          "original_filename": {
+            "type": "string",
+            "title": "Original Filename"
+          },
+          "file_format": {
+            "$ref": "#/components/schemas/DocumentFormat"
+          },
+          "document_type": {
+            "$ref": "#/components/schemas/DocumentType"
+          },
+          "size_bytes": {
+            "type": "integer",
+            "title": "Size Bytes"
+          },
+          "sha256": {
+            "type": "string",
+            "title": "Sha256"
+          },
+          "status": {
+            "$ref": "#/components/schemas/DocumentStatus"
+          },
+          "error_message": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Error Message"
+          },
+          "ingestion_attempts": {
+            "type": "integer",
+            "title": "Ingestion Attempts"
+          },
+          "page_count": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Page Count"
+          },
+          "chunk_count": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Chunk Count"
+          },
+          "indexed_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Indexed At"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Updated At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "organization_id",
+          "brand_id",
+          "uploaded_by_id",
+          "original_filename",
+          "file_format",
+          "document_type",
+          "size_bytes",
+          "sha256",
+          "status",
+          "error_message",
+          "ingestion_attempts",
+          "page_count",
+          "chunk_count",
+          "indexed_at",
+          "created_at",
+          "updated_at"
+        ],
+        "title": "DocumentRead"
+      },
+      "DocumentStatus": {
+        "type": "string",
+        "enum": [
+          "pending",
+          "processing",
+          "indexed",
+          "failed",
+          "deleted"
+        ],
+        "title": "DocumentStatus"
+      },
+      "DocumentType": {
+        "type": "string",
+        "enum": [
+          "brand_guidelines",
+          "product_catalogue",
+          "previous_campaign",
+          "marketing_strategy",
+          "customer_persona",
+          "competitor_analysis",
+          "brand_tone",
+          "product_specification",
+          "other"
+        ],
+        "title": "DocumentType"
+      },
+      "ErrorBody": {
+        "properties": {
+          "code": {
+            "type": "string",
+            "title": "Code"
+          },
+          "message": {
+            "type": "string",
+            "title": "Message"
+          },
+          "details": {
+            "title": "Details"
+          },
+          "request_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Request Id"
+          }
+        },
+        "type": "object",
+        "required": [
+          "code",
+          "message"
+        ],
+        "title": "ErrorBody"
+      },
+      "ErrorResponse": {
+        "properties": {
+          "error": {
+            "$ref": "#/components/schemas/ErrorBody"
+          }
+        },
+        "type": "object",
+        "required": [
+          "error"
+        ],
+        "title": "ErrorResponse",
+        "description": "Shape of every error response (documented in OpenAPI)."
+      },
+      "EvaluationSummary": {
+        "properties": {
+          "run_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Run Id"
+          },
+          "status": {
+            "$ref": "#/components/schemas/RunStatus"
+          },
+          "threshold": {
+            "type": "number",
+            "title": "Threshold"
+          },
+          "overall_score": {
+            "type": "number",
+            "title": "Overall Score"
+          },
+          "passed": {
+            "type": "boolean",
+            "title": "Passed"
+          },
+          "score_change": {
+            "type": "number",
+            "title": "Score Change"
+          },
+          "scores": {
+            "additionalProperties": {
+              "type": "integer"
+            },
+            "type": "object",
+            "title": "Scores"
+          },
+          "iterations": {
+            "items": {
+              "$ref": "#/components/schemas/IterationScore"
+            },
+            "type": "array",
+            "title": "Iterations"
+          },
+          "issues": {
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "type": "array",
+            "title": "Issues"
+          },
+          "issues_by_severity": {
+            "additionalProperties": {
+              "type": "integer"
+            },
+            "type": "object",
+            "title": "Issues By Severity"
+          },
+          "issues_by_dimension": {
+            "additionalProperties": {
+              "type": "integer"
+            },
+            "type": "object",
+            "title": "Issues By Dimension"
+          },
+          "strengths": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Strengths"
+          },
+          "overall_feedback": {
+            "type": "string",
+            "title": "Overall Feedback"
+          },
+          "revision_history": {
+            "items": {
+              "$ref": "#/components/schemas/RevisionInfo"
+            },
+            "type": "array",
+            "title": "Revision History"
+          },
+          "agent_timings": {
+            "items": {
+              "$ref": "#/components/schemas/AgentTiming"
+            },
+            "type": "array",
+            "title": "Agent Timings"
+          },
+          "total_agent_ms": {
+            "type": "number",
+            "title": "Total Agent Ms"
+          }
+        },
+        "type": "object",
+        "required": [
+          "run_id",
+          "status",
+          "threshold",
+          "overall_score",
+          "passed",
+          "score_change",
+          "scores",
+          "iterations",
+          "issues",
+          "issues_by_severity",
+          "issues_by_dimension",
+          "strengths",
+          "overall_feedback",
+          "revision_history",
+          "agent_timings",
+          "total_agent_ms"
+        ],
+        "title": "EvaluationSummary"
+      },
+      "HealthResponse": {
+        "properties": {
+          "status": {
+            "type": "string",
+            "const": "ok",
+            "title": "Status"
+          },
+          "app": {
+            "type": "string",
+            "title": "App"
+          },
+          "version": {
+            "type": "string",
+            "title": "Version"
+          },
+          "environment": {
+            "type": "string",
+            "title": "Environment"
+          }
+        },
+        "type": "object",
+        "required": [
+          "status",
+          "app",
+          "version",
+          "environment"
+        ],
+        "title": "HealthResponse"
+      },
+      "IterationScore": {
+        "properties": {
+          "iteration": {
+            "type": "integer",
+            "title": "Iteration"
+          },
+          "overall_score": {
+            "type": "number",
+            "title": "Overall Score"
+          },
+          "passed": {
+            "type": "boolean",
+            "title": "Passed"
+          },
+          "scores": {
+            "additionalProperties": {
+              "type": "integer"
+            },
+            "type": "object",
+            "title": "Scores"
+          },
+          "issue_counts": {
+            "additionalProperties": {
+              "type": "integer"
+            },
+            "type": "object",
+            "title": "Issue Counts"
+          }
+        },
+        "type": "object",
+        "required": [
+          "iteration",
+          "overall_score",
+          "passed",
+          "scores",
+          "issue_counts"
+        ],
+        "title": "IterationScore"
+      },
+      "ListResponse_ApprovalRead_": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/ApprovalRead"
+            },
+            "type": "array",
+            "title": "Items"
+          }
+        },
+        "type": "object",
+        "required": [
+          "items"
+        ],
+        "title": "ListResponse[ApprovalRead]"
+      },
+      "ListResponse_MemberRead_": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/MemberRead"
+            },
+            "type": "array",
+            "title": "Items"
+          }
+        },
+        "type": "object",
+        "required": [
+          "items"
+        ],
+        "title": "ListResponse[MemberRead]"
+      },
+      "ListResponse_OrganizationWithRole_": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/OrganizationWithRole"
+            },
+            "type": "array",
+            "title": "Items"
+          }
+        },
+        "type": "object",
+        "required": [
+          "items"
+        ],
+        "title": "ListResponse[OrganizationWithRole]"
+      },
+      "ListResponse_RunSummary_": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/RunSummary"
+            },
+            "type": "array",
+            "title": "Items"
+          }
+        },
+        "type": "object",
+        "required": [
+          "items"
+        ],
+        "title": "ListResponse[RunSummary]"
+      },
+      "LoginRequest": {
+        "properties": {
+          "email": {
+            "type": "string",
+            "format": "email",
+            "title": "Email"
+          },
+          "password": {
+            "type": "string",
+            "maxLength": 128,
+            "title": "Password"
+          }
+        },
+        "type": "object",
+        "required": [
+          "email",
+          "password"
+        ],
+        "title": "LoginRequest"
+      },
+      "MarketTrend": {
+        "properties": {
+          "trend": {
+            "type": "string",
+            "title": "Trend"
+          },
+          "sources": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Sources"
+          }
+        },
+        "type": "object",
+        "required": [
+          "trend",
+          "sources"
+        ],
+        "title": "MarketTrend"
+      },
+      "MeResponse": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "email": {
+            "type": "string",
+            "title": "Email"
+          },
+          "full_name": {
+            "type": "string",
+            "title": "Full Name"
+          },
+          "is_active": {
+            "type": "boolean",
+            "title": "Is Active"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          },
+          "organizations": {
+            "items": {
+              "$ref": "#/components/schemas/OrganizationWithRole"
+            },
+            "type": "array",
+            "title": "Organizations"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "email",
+          "full_name",
+          "is_active",
+          "created_at",
+          "organizations"
+        ],
+        "title": "MeResponse"
+      },
+      "MemberAdd": {
+        "properties": {
+          "email": {
+            "type": "string",
+            "format": "email",
+            "title": "Email"
+          },
+          "role": {
+            "$ref": "#/components/schemas/MembershipRole",
+            "default": "member"
+          }
+        },
+        "type": "object",
+        "required": [
+          "email"
+        ],
+        "title": "MemberAdd"
+      },
+      "MemberRead": {
+        "properties": {
+          "user_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "User Id"
+          },
+          "email": {
+            "type": "string",
+            "title": "Email"
+          },
+          "full_name": {
+            "type": "string",
+            "title": "Full Name"
+          },
+          "role": {
+            "$ref": "#/components/schemas/MembershipRole"
+          },
+          "joined_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Joined At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "user_id",
+          "email",
+          "full_name",
+          "role",
+          "joined_at"
+        ],
+        "title": "MemberRead"
+      },
+      "MemberRoleUpdate": {
+        "properties": {
+          "role": {
+            "$ref": "#/components/schemas/MembershipRole"
+          }
+        },
+        "type": "object",
+        "required": [
+          "role"
+        ],
+        "title": "MemberRoleUpdate"
+      },
+      "MembershipRole": {
+        "type": "string",
+        "enum": [
+          "owner",
+          "admin",
+          "member"
+        ],
+        "title": "MembershipRole"
+      },
+      "Opportunity": {
+        "properties": {
+          "opportunity": {
+            "type": "string",
+            "title": "Opportunity"
+          },
+          "rationale": {
+            "type": "string",
+            "title": "Rationale"
+          },
+          "sources": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Sources"
+          },
+          "evidence_backed": {
+            "type": "boolean",
+            "title": "Evidence Backed",
+            "description": "False = strategic inference without citations."
+          }
+        },
+        "type": "object",
+        "required": [
+          "opportunity",
+          "rationale",
+          "sources",
+          "evidence_backed"
+        ],
+        "title": "Opportunity"
+      },
+      "OrganizationCreate": {
+        "properties": {
+          "name": {
+            "type": "string",
+            "maxLength": 255,
+            "minLength": 1,
+            "title": "Name"
+          },
+          "slug": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 100,
+                "minLength": 3,
+                "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Slug"
+          }
+        },
+        "type": "object",
+        "required": [
+          "name"
+        ],
+        "title": "OrganizationCreate"
+      },
+      "OrganizationUpdate": {
+        "properties": {
+          "name": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 255,
+                "minLength": 1
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Name"
+          },
+          "slug": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 100,
+                "minLength": 3,
+                "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Slug"
+          }
+        },
+        "type": "object",
+        "title": "OrganizationUpdate"
+      },
+      "OrganizationWithRole": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "slug": {
+            "type": "string",
+            "title": "Slug"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          },
+          "role": {
+            "$ref": "#/components/schemas/MembershipRole"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "name",
+          "slug",
+          "created_at",
+          "role"
+        ],
+        "title": "OrganizationWithRole",
+        "description": "An organization as seen by the current user, including their role in it."
+      },
+      "OutputRead": {
+        "properties": {
+          "run_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Run Id"
+          },
+          "output_type": {
+            "$ref": "#/components/schemas/OutputType"
+          },
+          "version": {
+            "type": "integer",
+            "title": "Version"
+          },
+          "versions": {
+            "type": "integer",
+            "title": "Versions",
+            "description": "How many versions of this output the run produced."
+          },
+          "content": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Content"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "run_id",
+          "output_type",
+          "version",
+          "versions",
+          "content",
+          "created_at"
+        ],
+        "title": "OutputRead"
+      },
+      "OutputType": {
+        "type": "string",
+        "enum": [
+          "execution_plan",
+          "brand_research",
+          "competitor_research",
+          "concepts",
+          "script",
+          "storyboard",
+          "evaluation",
+          "final_campaign"
+        ],
+        "title": "OutputType"
+      },
+      "OutputVersionInfo": {
+        "properties": {
+          "output_type": {
+            "$ref": "#/components/schemas/OutputType"
+          },
+          "latest_version": {
+            "type": "integer",
+            "title": "Latest Version"
+          },
+          "versions": {
+            "type": "integer",
+            "title": "Versions"
+          }
+        },
+        "type": "object",
+        "required": [
+          "output_type",
+          "latest_version",
+          "versions"
+        ],
+        "title": "OutputVersionInfo"
+      },
+      "PageResponse_BrandSummary_": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/BrandSummary"
+            },
+            "type": "array",
+            "title": "Items"
+          },
+          "total": {
+            "type": "integer",
+            "title": "Total"
+          },
+          "limit": {
+            "type": "integer",
+            "title": "Limit"
+          },
+          "offset": {
+            "type": "integer",
+            "title": "Offset"
+          }
+        },
+        "type": "object",
+        "required": [
+          "items",
+          "total",
+          "limit",
+          "offset"
+        ],
+        "title": "PageResponse[BrandSummary]"
+      },
+      "PageResponse_CampaignRead_": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/CampaignRead"
+            },
+            "type": "array",
+            "title": "Items"
+          },
+          "total": {
+            "type": "integer",
+            "title": "Total"
+          },
+          "limit": {
+            "type": "integer",
+            "title": "Limit"
+          },
+          "offset": {
+            "type": "integer",
+            "title": "Offset"
+          }
+        },
+        "type": "object",
+        "required": [
+          "items",
+          "total",
+          "limit",
+          "offset"
+        ],
+        "title": "PageResponse[CampaignRead]"
+      },
+      "PageResponse_DocumentRead_": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/DocumentRead"
+            },
+            "type": "array",
+            "title": "Items"
+          },
+          "total": {
+            "type": "integer",
+            "title": "Total"
+          },
+          "limit": {
+            "type": "integer",
+            "title": "Limit"
+          },
+          "offset": {
+            "type": "integer",
+            "title": "Offset"
+          }
+        },
+        "type": "object",
+        "required": [
+          "items",
+          "total",
+          "limit",
+          "offset"
+        ],
+        "title": "PageResponse[DocumentRead]"
+      },
+      "ReadinessResponse": {
+        "properties": {
+          "status": {
+            "type": "string",
+            "const": "ok",
+            "title": "Status"
+          },
+          "checks": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "type": "object",
+            "title": "Checks"
+          }
+        },
+        "type": "object",
+        "required": [
+          "status",
+          "checks"
+        ],
+        "title": "ReadinessResponse"
+      },
+      "RecentDocument": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "original_filename": {
+            "type": "string",
+            "title": "Original Filename"
+          },
+          "brand_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Brand Id"
+          },
+          "brand_name": {
+            "type": "string",
+            "title": "Brand Name"
+          },
+          "status": {
+            "$ref": "#/components/schemas/DocumentStatus"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "original_filename",
+          "brand_id",
+          "brand_name",
+          "status",
+          "created_at"
+        ],
+        "title": "RecentDocument"
+      },
+      "RecentStep": {
+        "properties": {
+          "agent": {
+            "type": "string",
+            "title": "Agent"
+          },
+          "status": {
+            "type": "string",
+            "title": "Status"
+          },
+          "summary": {
+            "type": "string",
+            "title": "Summary"
+          },
+          "started_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Started At"
+          },
+          "campaign_name": {
+            "type": "string",
+            "title": "Campaign Name"
+          },
+          "run_version": {
+            "type": "integer",
+            "title": "Run Version"
+          },
+          "run_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Run Id"
+          }
+        },
+        "type": "object",
+        "required": [
+          "agent",
+          "status",
+          "summary",
+          "started_at",
+          "campaign_name",
+          "run_version",
+          "run_id"
+        ],
+        "title": "RecentStep"
+      },
+      "RefreshRequest": {
+        "properties": {
+          "refresh_token": {
+            "type": "string",
+            "maxLength": 512,
+            "minLength": 1,
+            "title": "Refresh Token"
+          }
+        },
+        "type": "object",
+        "required": [
+          "refresh_token"
+        ],
+        "title": "RefreshRequest"
+      },
+      "RegisterRequest": {
+        "properties": {
+          "email": {
+            "type": "string",
+            "format": "email",
+            "title": "Email"
+          },
+          "password": {
+            "type": "string",
+            "maxLength": 128,
+            "minLength": 8,
+            "title": "Password"
+          },
+          "full_name": {
+            "type": "string",
+            "maxLength": 255,
+            "minLength": 1,
+            "title": "Full Name"
+          }
+        },
+        "type": "object",
+        "required": [
+          "email",
+          "password",
+          "full_name"
+        ],
+        "title": "RegisterRequest"
+      },
+      "RejectRequest": {
+        "properties": {
+          "feedback": {
+            "type": "string",
+            "maxLength": 2000,
+            "minLength": 1,
+            "title": "Feedback"
+          }
+        },
+        "type": "object",
+        "required": [
+          "feedback"
+        ],
+        "title": "RejectRequest"
+      },
+      "RevisionInfo": {
+        "properties": {
+          "iteration": {
+            "type": "integer",
+            "title": "Iteration"
+          },
+          "overall_score": {
+            "type": "number",
+            "title": "Overall Score"
+          },
+          "issue_count": {
+            "type": "integer",
+            "title": "Issue Count"
+          },
+          "routed_to": {
+            "type": "string",
+            "title": "Routed To"
+          }
+        },
+        "type": "object",
+        "required": [
+          "iteration",
+          "overall_score",
+          "issue_count",
+          "routed_to"
+        ],
+        "title": "RevisionInfo"
+      },
+      "RunDetail": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "campaign_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Campaign Id"
+          },
+          "version": {
+            "type": "integer",
+            "title": "Version"
+          },
+          "status": {
+            "$ref": "#/components/schemas/RunStatus"
+          },
+          "overall_score": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Overall Score"
+          },
+          "error_message": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Error Message"
+          },
+          "parent_run_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Parent Run Id"
+          },
+          "attempts": {
+            "type": "integer",
+            "title": "Attempts"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          },
+          "started_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Started At"
+          },
+          "finished_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Finished At"
+          },
+          "brief_snapshot": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Brief Snapshot"
+          },
+          "agent_runs": {
+            "items": {
+              "$ref": "#/components/schemas/AgentRunRead"
+            },
+            "type": "array",
+            "title": "Agent Runs"
+          },
+          "pending_approval": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ApprovalRead"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "outputs": {
+            "items": {
+              "$ref": "#/components/schemas/OutputVersionInfo"
+            },
+            "type": "array",
+            "title": "Outputs"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "campaign_id",
+          "version",
+          "status",
+          "overall_score",
+          "error_message",
+          "parent_run_id",
+          "attempts",
+          "created_at",
+          "started_at",
+          "finished_at",
+          "brief_snapshot",
+          "agent_runs",
+          "pending_approval",
+          "outputs"
+        ],
+        "title": "RunDetail"
+      },
+      "RunStatus": {
+        "type": "string",
+        "enum": [
+          "queued",
+          "running",
+          "awaiting_approval",
+          "completed",
+          "needs_review",
+          "concepts_rejected",
+          "failed"
+        ],
+        "title": "RunStatus"
+      },
+      "RunSummary": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "campaign_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Campaign Id"
+          },
+          "version": {
+            "type": "integer",
+            "title": "Version"
+          },
+          "status": {
+            "$ref": "#/components/schemas/RunStatus"
+          },
+          "overall_score": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Overall Score"
+          },
+          "error_message": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Error Message"
+          },
+          "parent_run_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Parent Run Id"
+          },
+          "attempts": {
+            "type": "integer",
+            "title": "Attempts"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          },
+          "started_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Started At"
+          },
+          "finished_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Finished At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "campaign_id",
+          "version",
+          "status",
+          "overall_score",
+          "error_message",
+          "parent_run_id",
+          "attempts",
+          "created_at",
+          "started_at",
+          "finished_at"
+        ],
+        "title": "RunSummary"
+      },
+      "SearchRequest": {
+        "properties": {
+          "query": {
+            "type": "string",
+            "maxLength": 1000,
+            "minLength": 1,
+            "title": "Query"
+          },
+          "top_k": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "maximum": 20.0,
+                "minimum": 1.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Top K"
+          },
+          "document_types": {
+            "items": {
+              "$ref": "#/components/schemas/DocumentType"
+            },
+            "type": "array",
+            "title": "Document Types"
+          },
+          "rewrite": {
+            "type": "boolean",
+            "title": "Rewrite",
+            "description": "Expand the query with the LLM first (slower, higher recall).",
+            "default": false
+          },
+          "rerank": {
+            "type": "boolean",
+            "title": "Rerank",
+            "description": "Rerank candidates with a cross-encoder.",
+            "default": true
+          },
+          "mode": {
+            "type": "string",
+            "enum": [
+              "hybrid",
+              "dense",
+              "sparse"
+            ],
+            "title": "Mode",
+            "default": "hybrid"
+          }
+        },
+        "type": "object",
+        "required": [
+          "query"
+        ],
+        "title": "SearchRequest"
+      },
+      "SearchResponse": {
+        "properties": {
+          "queries": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Queries",
+            "description": "Queries actually searched (original + rewrites)."
+          },
+          "results": {
+            "items": {
+              "$ref": "#/components/schemas/ChunkHit"
+            },
+            "type": "array",
+            "title": "Results"
+          },
+          "timings_ms": {
+            "additionalProperties": {
+              "type": "number"
+            },
+            "type": "object",
+            "title": "Timings Ms"
+          }
+        },
+        "type": "object",
+        "required": [
+          "queries",
+          "results",
+          "timings_ms"
+        ],
+        "title": "SearchResponse"
+      },
+      "SocialLink": {
+        "properties": {
+          "platform": {
+            "type": "string",
+            "maxLength": 50,
+            "minLength": 1,
+            "title": "Platform"
+          },
+          "url": {
+            "type": "string",
+            "maxLength": 2083,
+            "minLength": 1,
+            "format": "uri",
+            "title": "Url"
+          }
+        },
+        "type": "object",
+        "required": [
+          "platform",
+          "url"
+        ],
+        "title": "SocialLink"
+      },
+      "SourceRef": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "url": {
+            "type": "string",
+            "title": "Url"
+          },
+          "title": {
+            "type": "string",
+            "title": "Title"
+          },
+          "domain": {
+            "type": "string",
+            "title": "Domain"
+          },
+          "snippet": {
+            "type": "string",
+            "title": "Snippet"
+          },
+          "published_date": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Published Date"
+          },
+          "retrieved_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Retrieved At"
+          },
+          "query": {
+            "type": "string",
+            "title": "Query"
+          },
+          "from_cache": {
+            "type": "boolean",
+            "title": "From Cache"
+          },
+          "cited": {
+            "type": "boolean",
+            "title": "Cited"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "url",
+          "title",
+          "domain",
+          "snippet",
+          "published_date",
+          "retrieved_at",
+          "query",
+          "from_cache",
+          "cited"
+        ],
+        "title": "SourceRef"
+      },
+      "TokenResponse": {
+        "properties": {
+          "access_token": {
+            "type": "string",
+            "title": "Access Token"
+          },
+          "refresh_token": {
+            "type": "string",
+            "title": "Refresh Token"
+          },
+          "token_type": {
+            "type": "string",
+            "const": "bearer",
+            "title": "Token Type",
+            "default": "bearer"
+          },
+          "expires_in": {
+            "type": "integer",
+            "title": "Expires In",
+            "description": "Access token lifetime in seconds"
+          }
+        },
+        "type": "object",
+        "required": [
+          "access_token",
+          "refresh_token",
+          "expires_in"
+        ],
+        "title": "TokenResponse"
+      },
+      "UserRead": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "email": {
+            "type": "string",
+            "title": "Email"
+          },
+          "full_name": {
+            "type": "string",
+            "title": "Full Name"
+          },
+          "is_active": {
+            "type": "boolean",
+            "title": "Is Active"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "email",
+          "full_name",
+          "is_active",
+          "created_at"
+        ],
+        "title": "UserRead"
+      },
+      "UserUpdate": {
+        "properties": {
+          "full_name": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 255,
+                "minLength": 1
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Full Name"
+          }
+        },
+        "type": "object",
+        "title": "UserUpdate"
+      }
+    },
+    "securitySchemes": {
+      "HTTPBearer": {
+        "type": "http",
+        "scheme": "bearer"
+      }
+    }
+  }
+}
