@@ -16,26 +16,18 @@ The project is built one phase at a time. Each phase ends with passing tests and
 | 9 | Campaign PDF export (PyMuPDF HTML renderer, escaped untrusted text), per-run evaluation summary (score trend, issues, revisions, agent timings), organization dashboard (totals, quality rates, activity, recent items), LangSmith trace metadata | PyMuPDF, LangSmith | ✅ Done |
 | 10 | Frontend foundation: typed API client from OpenAPI, httpOnly-cookie auth (BFF route handlers, single-flight refresh), login/register, workspace picker & switcher, dashboard, brands + full profile editor, knowledge base (upload, live status, reindex, delete), settings (account, workspace, members/roles), Playwright E2E | Next.js 16, TS, Tailwind 4, shadcn/ui, TanStack Query, Playwright | ✅ Done |
 | 11 | Campaign UI: list, 4-step brief wizard (create/edit), campaign history, run workspace with live agent pipeline (fetch-based SSE + Last-Event-ID), concept approval/rejection, research/concepts views, versioned script & storyboard editors (backend: human edits saved as new versions), Critic evaluation dashboard (validated chart palette), PDF download, regenerate/retry; full-product Playwright test with real agents | Next.js, SSE, Playwright | ✅ Done |
-| 12 | Hardening: security review, rate limiting, test coverage, RAG/agent evaluation | | ⏳ Next |
-| 13 | Containerization & deployment (deferred) | Docker | |
+| 12 | Hardening: Redis rate limits (per IP / per user) and per-account login lockout, trusted-proxy client IPs, security headers (API + web CSP), request body limits, production config guards, separate campaign queue, refresh-token purge (Celery beat), recent-only trend research and a stable research-plan cache, wizard double-submit fix, security review ([SECURITY.md](SECURITY.md)) | Redis, Celery beat | ✅ Done |
+| 13 | Containerization & deployment | Docker | ⏳ Next |
 
 ## Deferred items (tracked so they aren't forgotten)
 
-- Login rate limiting / brute-force protection (phase 12, needs Redis).
-- Periodic cleanup of expired/revoked refresh tokens (Celery beat, phase 4+).
-- Email invitations and email verification (needs an email provider).
-- Web clients: consider keeping the refresh token in an httpOnly cookie (phase 10).
-- Web research: prefer recent sources for trend queries (Tavily `time_range`) — live runs
-  occasionally cite years-old articles; competitor research takes ~35–50 s, so phase 7 runs
-  it inside the worker.
-- Agent workflow: the competitor-research plan cache misses between campaign runs because
-  the Campaign Manager's LLM-written research focus is part of the cache key (~6 Tavily
-  credits per run). Key the plan on brand + brief fields instead.
-- Worker: one `--pool=solo` worker processes ingestion and campaign tasks in sequence, so a
-  long campaign delays document indexing. In deployment, route `campaigns.*` to its own queue
-  and worker.
-- SSE: browsers' native `EventSource` cannot send an Authorization header; the frontend
-  (phase 10) should use a fetch-based SSE client.
+- Email invitations, email verification and password reset (needs an email provider).
+- Test coverage report: add `pytest-cov` to requirements-dev and enforce a coverage floor in CI.
+- Web CSP allows inline scripts (Next.js hydration); switch to per-request nonces if pages
+  become dynamic anyway.
+- Rate limits fail open when Redis is down; alert on the "Rate limiter unavailable" warning
+  in deployment.
+- Per-organization LLM / web-search spend quotas (today: per-user rate limits only).
 
 ## Local services needed (no Docker for now)
 

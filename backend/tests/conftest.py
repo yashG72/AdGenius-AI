@@ -17,9 +17,11 @@ from httpx import ASGITransport, AsyncClient
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 from sqlalchemy.pool import NullPool
 
+from app.api.rate_limits import get_rate_limiter
 from app.api.v1.routes.health import get_readiness_checks
 from app.core.aio import loop_factory
 from app.core.config import get_settings
+from app.core.rate_limit import InMemoryRateLimiter
 from app.core.storage import LocalFileStorage, get_storage
 from app.db.session import get_db_session
 from app.main import create_app
@@ -113,8 +115,14 @@ def queued(monkeypatch: pytest.MonkeyPatch) -> dict[str, list]:
 
 
 @pytest.fixture
+def rate_limiter() -> InMemoryRateLimiter:
+    """A fresh limiter per test (no Redis needed, no counts leaking between tests)."""
+    return InMemoryRateLimiter()
+
+
+@pytest.fixture
 async def client(
-    db_session: AsyncSession, storage: LocalFileStorage
+    db_session: AsyncSession, storage: LocalFileStorage, rate_limiter: InMemoryRateLimiter
 ) -> AsyncIterator[AsyncClient]:
     """HTTP client calling the app in-process, with the DB swapped for the test session."""
     app = create_app()
@@ -125,6 +133,7 @@ async def client(
     app.dependency_overrides[get_db_session] = override_get_db_session
     app.dependency_overrides[get_storage] = lambda: storage
     app.dependency_overrides[get_readiness_checks] = lambda: {}  # no Redis/Qdrant in tests
+    app.dependency_overrides[get_rate_limiter] = lambda: rate_limiter
 
     transport = ASGITransport(app=app)
     async with AsyncClient(transport=transport, base_url="http://test") as http_client:

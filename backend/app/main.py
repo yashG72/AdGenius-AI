@@ -16,7 +16,12 @@ from app.api.v1.router import api_router
 from app.core.config import get_settings
 from app.core.exceptions import register_exception_handlers
 from app.core.logging import configure_logging
-from app.core.middleware import REQUEST_ID_HEADER, RequestIDMiddleware
+from app.core.middleware import (
+    REQUEST_ID_HEADER,
+    BodySizeLimitMiddleware,
+    RequestIDMiddleware,
+    SecurityHeadersMiddleware,
+)
 from app.core.tracing import configure_tracing
 from app.db.session import engine
 from app.ingestion.vector_store import get_qdrant_client
@@ -55,7 +60,17 @@ def create_app() -> FastAPI:
         lifespan=lifespan,
     )
 
-    # Middleware added last runs first, so CORS wraps everything.
+    # Middleware added last runs first, so CORS wraps everything. Order (outer -> inner):
+    # CORS -> request ID -> security headers -> body size limit -> routes.
+    app.add_middleware(
+        BodySizeLimitMiddleware,
+        max_json_bytes=settings.max_json_body_kb * 1024,
+        # Multipart framing adds a little overhead around the file itself.
+        max_multipart_bytes=(settings.max_upload_size_mb + 1) * 1024 * 1024,
+    )
+    app.add_middleware(
+        SecurityHeadersMiddleware, api_prefix=settings.api_v1_prefix, hsts=settings.hsts_enabled
+    )
     app.add_middleware(RequestIDMiddleware)
     app.add_middleware(
         CORSMiddleware,

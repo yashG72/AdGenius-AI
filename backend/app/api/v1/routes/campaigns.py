@@ -3,9 +3,10 @@
 import uuid
 from typing import Annotated
 
-from fastapi import APIRouter, BackgroundTasks, Query, status
+from fastapi import APIRouter, BackgroundTasks, Depends, Query, status
 
 from app.api.deps import CurrentUserDep, DbSessionDep, OrgMemberDep
+from app.api.rate_limits import CAMPAIGN_RUNS, limit_by_user
 from app.models import Campaign
 from app.schemas.campaign import (
     CampaignCreate,
@@ -79,6 +80,7 @@ async def update_campaign(
 @router.post(
     "/{campaign_id}/generate",
     response_model=RunSummary,
+    dependencies=[Depends(limit_by_user(CAMPAIGN_RUNS))],
     status_code=status.HTTP_202_ACCEPTED,
     summary="Start a new versioned generation run (runs in the background worker)",
 )

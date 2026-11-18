@@ -1,12 +1,25 @@
 """Celery application.
 
-Start a worker (from backend/, venv active). On Windows Celery's default process pool
-is unsupported, so use the single-process "solo" pool:
+Two queues, so a long campaign run (minutes of LLM calls) never delays document
+indexing or housekeeping:
 
-    celery -A app.worker.celery_app worker --pool=solo --loglevel=info
+- `default`   - documents.ingest, documents.cleanup, maintenance.*  (short jobs)
+- `campaigns` - campaigns.execute                                    (long jobs)
+
+Start workers from backend/ (venv active). On Windows Celery's default process pool is
+unsupported, so use the single-process "solo" pool - one worker per queue:
+
+    celery -A app.worker.celery_app worker --pool=solo -Q default -n default@%h --loglevel=info
+    celery -A app.worker.celery_app worker --pool=solo -Q campaigns -n campaigns@%h --loglevel=info
+
+(One worker can also serve both: `-Q default,campaigns`.) Periodic housekeeping needs
+the scheduler process too:
+
+    celery -A app.worker.celery_app beat --loglevel=info
 """
 
 from celery import Celery
+from celery.schedules import crontab
 
 from app.core.config import get_settings
 from app.core.logging import configure_logging
@@ -47,6 +60,16 @@ celery_app.conf.update(
     task_time_limit=20 * 60,
     broker_connection_retry_on_startup=True,
     worker_hijack_root_logger=False,
+    # ---------- Queues ----------
+    task_default_queue="default",
+    task_routes={"campaigns.*": {"queue": "campaigns"}},
+    # ---------- Periodic jobs (run by `celery beat`) ----------
+    beat_schedule={
+        "purge-expired-refresh-tokens": {
+            "task": "maintenance.purge_refresh_tokens",
+            "schedule": crontab(hour=3, minute=17),  # daily, off the hour
+        },
+    },
 )
 
 configure_logging(settings.log_level)

@@ -33,6 +33,19 @@ class Settings(BaseSettings):
 
     # ---------- HTTP ----------
     cors_origins: list[str] = ["http://localhost:3000"]
+    # Peers allowed to tell us the real client IP via X-Forwarded-For (the Next.js server
+    # for auth calls, a load balancer in deployment). Anyone else's header is ignored.
+    trusted_proxies: list[str] = ["127.0.0.1", "::1"]
+    # HSTS tells browsers to only ever use HTTPS - enable only when served over HTTPS.
+    hsts_enabled: bool = False
+    # JSON request bodies above this are rejected (413) before parsing. Uploads have
+    # their own, larger limit (MAX_UPLOAD_SIZE_MB).
+    max_json_body_kb: int = Field(default=1024, ge=16)
+
+    # ---------- Rate limiting (Redis) ----------
+    rate_limit_enabled: bool = True
+    login_max_failures: int = Field(default=5, ge=1)  # per email, then a lockout window
+    login_lockout_seconds: int = Field(default=15 * 60, ge=1)
 
     # ---------- Database ----------
     # Async driver URL, e.g. postgresql+asyncpg://user:pass@localhost:5432/adgenius
@@ -136,6 +149,10 @@ class Settings(BaseSettings):
             secret = self.jwt_secret_key.get_secret_value()
             if secret == _INSECURE_DEV_SECRET or len(secret) < 32:
                 raise ValueError("JWT_SECRET_KEY must be a random value of 32+ characters.")
+            if self.debug:
+                raise ValueError("DEBUG must be off outside local/test environments.")
+            if "*" in self.cors_origins:
+                raise ValueError("CORS_ORIGINS cannot be '*' when credentials are allowed.")
         return self
 
 

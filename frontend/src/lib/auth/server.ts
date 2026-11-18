@@ -20,10 +20,20 @@ export function isSameOrigin(request: NextRequest): boolean {
   return !origin || origin === request.nextUrl.origin
 }
 
-export async function callBackend(path: string, body: unknown): Promise<Response> {
+/**
+ * The browser's IP as this server saw it. The API rate-limits sign-ins per client IP;
+ * without this every user would share the Next.js server's address. The API only
+ * believes X-Forwarded-For from its trusted proxies (TRUSTED_PROXIES), i.e. this server.
+ */
+function forwardedFor(request: NextRequest): string | undefined {
+  return request.headers.get("x-forwarded-for") ?? request.headers.get("x-real-ip") ?? undefined
+}
+
+export async function callBackend(path: string, body: unknown, request: NextRequest): Promise<Response> {
+  const forwarded = forwardedFor(request)
   return fetch(`${SERVER_API_URL}/api/v1${path}`, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: { "Content-Type": "application/json", ...(forwarded ? { "X-Forwarded-For": forwarded } : {}) },
     body: JSON.stringify(body),
     cache: "no-store",
   })
@@ -50,10 +60,14 @@ export function clearSession(response: NextResponse): NextResponse {
   return response
 }
 
-/** Pass the backend's error status + envelope straight through. */
+/** Pass the backend's error status + envelope (and Retry-After on 429) straight through. */
 export async function forwardError(backend: Response): Promise<NextResponse> {
   const body = await backend.json().catch(() => ({ error: { message: "Auth service error" } }))
-  return NextResponse.json(body, { status: backend.status })
+  const retryAfter = backend.headers.get("retry-after")
+  return NextResponse.json(body, {
+    status: backend.status,
+    headers: retryAfter ? { "Retry-After": retryAfter } : undefined,
+  })
 }
 
 export const forbidden = () =>

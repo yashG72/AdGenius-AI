@@ -15,9 +15,10 @@ function makeQueryClient() {
       queries: {
         staleTime: 30_000,
         refetchOnWindowFocus: false,
-        // Retry network hiccups, but never "you can't see this" answers.
+        // Retry network hiccups, but never "you can't see this" answers - nor 429:
+        // retrying a rate-limited call only extends the wait.
         retry: (failures, error) =>
-          !(error instanceof ApiError && [400, 401, 403, 404, 409, 422].includes(error.status)) &&
+          !(error instanceof ApiError && [400, 401, 403, 404, 409, 413, 422, 429].includes(error.status)) &&
           failures < 2,
       },
     },

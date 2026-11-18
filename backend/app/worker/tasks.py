@@ -6,6 +6,7 @@ outlive the task's event loop).
 """
 
 import asyncio
+import logging
 import uuid
 
 from sqlalchemy import select
@@ -20,6 +21,8 @@ from app.ingestion.pipeline import ingest_document
 from app.ingestion.vector_store import VectorStore, create_qdrant_client
 from app.models import BrandDocument
 from app.worker.celery_app import celery_app
+
+logger = logging.getLogger(__name__)
 
 
 async def _run_ingestion(document_id: uuid.UUID, force: bool) -> str | None:
@@ -129,3 +132,21 @@ def cleanup_documents_task(document_ids: list[str], brand_id: str | None = None)
     asyncio.run(
         _cleanup([uuid.UUID(d) for d in document_ids], uuid.UUID(brand_id) if brand_id else None)
     )
+
+
+async def _purge_refresh_tokens() -> int:
+    from app.services.auth_service import purge_expired_refresh_tokens
+
+    engine = create_async_engine(get_settings().database_url, poolclass=NullPool)
+    try:
+        async with async_sessionmaker(engine)() as session:
+            return await purge_expired_refresh_tokens(session)
+    finally:
+        await engine.dispose()
+
+
+@celery_app.task(name="maintenance.purge_refresh_tokens")
+def purge_refresh_tokens_task() -> int:
+    deleted = asyncio.run(_purge_refresh_tokens())
+    logger.info("Purged %d expired refresh tokens", deleted)
+    return deleted

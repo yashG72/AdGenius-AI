@@ -1,8 +1,20 @@
 """Authentication and current-user profile endpoints."""
 
-from fastapi import APIRouter, status
+from fastapi import APIRouter, Depends, status
 
 from app.api.deps import CurrentUserDep, DbSessionDep, SettingsDep
+from app.api.rate_limits import (
+    LOGIN_PER_IP,
+    PASSWORD_CHANGE,
+    REFRESH_PER_IP,
+    REGISTER_PER_IP,
+    RateLimiterDep,
+    humanize_seconds,
+    limit_by_ip,
+    limit_by_user,
+)
+from app.core.exceptions import AuthenticationError, RateLimitedError
+from app.core.rate_limit import Limit
 from app.schemas.auth import (
     ChangePasswordRequest,
     LoginRequest,
@@ -19,19 +31,49 @@ from app.services import auth_service, organization_service
 router = APIRouter(prefix="/auth", tags=["auth"])
 
 
-@router.post("/register", response_model=UserRead, status_code=status.HTTP_201_CREATED)
+@router.post(
+    "/register",
+    response_model=UserRead,
+    status_code=status.HTTP_201_CREATED,
+    dependencies=[Depends(limit_by_ip(REGISTER_PER_IP))],
+)
 async def register(data: RegisterRequest, session: DbSessionDep) -> UserRead:
     user = await auth_service.register_user(session, data)
     return UserRead.model_validate(user)
 
 
-@router.post("/login", response_model=TokenResponse)
-async def login(data: LoginRequest, session: DbSessionDep, settings: SettingsDep) -> TokenResponse:
-    user = await auth_service.authenticate(session, data.email, data.password)
+@router.post(
+    "/login", response_model=TokenResponse, dependencies=[Depends(limit_by_ip(LOGIN_PER_IP))]
+)
+async def login(
+    data: LoginRequest, session: DbSessionDep, settings: SettingsDep, limiter: RateLimiterDep
+) -> TokenResponse:
+    # Brute-force protection per ACCOUNT (the per-IP limit alone misses attacks spread
+    # over many IPs). Only failures count; a successful login clears the counter.
+    # The lockout answers the same way whether or not the email exists.
+    failures = Limit("login-failures", settings.login_max_failures, settings.login_lockout_seconds)
+    if settings.rate_limit_enabled:
+        state = await limiter.peek(failures, data.email)
+        if state.count >= failures.requests:
+            raise RateLimitedError(
+                "Too many failed sign-in attempts for this account. "
+                f"Try again in {humanize_seconds(state.retry_after)}.",
+                retry_after=state.retry_after,
+            )
+    try:
+        user = await auth_service.authenticate(session, data.email, data.password)
+    except AuthenticationError:
+        if settings.rate_limit_enabled:
+            await limiter.hit(failures, data.email)
+        raise
+    if settings.rate_limit_enabled:
+        await limiter.reset(failures, data.email)
     return await auth_service.issue_tokens(session, user, settings)
 
 
-@router.post("/refresh", response_model=TokenResponse)
+@router.post(
+    "/refresh", response_model=TokenResponse, dependencies=[Depends(limit_by_ip(REFRESH_PER_IP))]
+)
 async def refresh(
     data: RefreshRequest, session: DbSessionDep, settings: SettingsDep
 ) -> TokenResponse:
@@ -60,7 +102,11 @@ async def update_me(data: UserUpdate, user: CurrentUserDep, session: DbSessionDe
     return UserRead.model_validate(user)
 
 
-@router.post("/change-password", status_code=status.HTTP_204_NO_CONTENT)
+@router.post(
+    "/change-password",
+    status_code=status.HTTP_204_NO_CONTENT,
+    dependencies=[Depends(limit_by_user(PASSWORD_CHANGE))],
+)
 async def change_password(
     data: ChangePasswordRequest, user: CurrentUserDep, session: DbSessionDep
 ) -> None:

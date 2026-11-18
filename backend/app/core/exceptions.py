@@ -64,6 +64,15 @@ class UnsupportedMediaTypeError(AppError):
     status_code, code, message = 415, "unsupported_media_type", "Unsupported file type."
 
 
+class RateLimitedError(AppError):
+    status_code, code, message = 429, "rate_limited", "Too many requests. Please slow down."
+
+    def __init__(self, message: str | None = None, *, retry_after: int, details=None) -> None:
+        super().__init__(message, details=details)
+        # Per-instance headers (the class-level default is shared, so never mutate it).
+        self.headers = {"Retry-After": str(retry_after)}
+
+
 class ServiceUnavailableError(AppError):
     status_code, code, message = 503, "service_unavailable", "A required service is unavailable."
 
@@ -75,6 +84,7 @@ _HTTP_STATUS_CODES = {
     404: "not_found",
     405: "method_not_allowed",
     409: "conflict",
+    413: "payload_too_large",
     429: "rate_limited",
 }
 

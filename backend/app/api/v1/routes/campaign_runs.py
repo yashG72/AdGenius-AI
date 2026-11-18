@@ -7,13 +7,14 @@ import time
 import uuid
 from typing import Annotated, Any
 
-from fastapi import APIRouter, BackgroundTasks, Header, Query, Request, Response, status
+from fastapi import APIRouter, BackgroundTasks, Depends, Header, Query, Request, Response, status
 from fastapi.responses import StreamingResponse
 from starlette.concurrency import run_in_threadpool
 
 from app.agents.schemas import Script, Storyboard
 from app.agents.timing import normalize_timeline
 from app.api.deps import CurrentUserDep, DbSessionDep, SettingsDep
+from app.api.rate_limits import CAMPAIGN_RUNS, limit_by_user
 from app.core.exceptions import ConflictError, NotFoundError
 from app.exports.campaign_pdf import render_pdf
 from app.models import Campaign, CampaignRun, OutputType
@@ -60,6 +61,7 @@ async def get_run(run_id: uuid.UUID, user: CurrentUserDep, session: DbSessionDep
 @router.post(
     "/campaign-runs/{run_id}/regenerate",
     response_model=RunSummary,
+    dependencies=[Depends(limit_by_user(CAMPAIGN_RUNS))],
     status_code=status.HTTP_202_ACCEPTED,
     summary="Start a NEW run version from the campaign's current brief (old run is kept)",
 )
@@ -76,6 +78,7 @@ async def regenerate(
 @router.post(
     "/campaign-runs/{run_id}/retry",
     response_model=RunSummary,
+    dependencies=[Depends(limit_by_user(CAMPAIGN_RUNS))],
     status_code=status.HTTP_202_ACCEPTED,
     summary="Continue a failed run from its last checkpoint",
 )

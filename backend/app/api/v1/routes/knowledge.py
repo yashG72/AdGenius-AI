@@ -10,6 +10,7 @@ from typing import Annotated
 from fastapi import APIRouter, Depends
 
 from app.api.deps import CurrentUserDep, DbSessionDep, SettingsDep
+from app.api.rate_limits import KNOWLEDGE_ASK, KNOWLEDGE_SEARCH, limit_by_user
 from app.ingestion.embeddings import get_embedder
 from app.ingestion.vector_store import get_qdrant_client
 from app.llm.client import get_llm
@@ -42,7 +43,12 @@ def get_rag_service(session: DbSessionDep, settings: SettingsDep) -> RagService:
 RagDep = Annotated[RagService, Depends(get_rag_service)]
 
 
-@router.post("/search", response_model=SearchResponse, summary="Hybrid search over brand documents")
+@router.post(
+    "/search",
+    response_model=SearchResponse,
+    summary="Hybrid search over brand documents",
+    dependencies=[Depends(limit_by_user(KNOWLEDGE_SEARCH))],
+)
 async def search(
     brand_id: uuid.UUID,
     data: SearchRequest,
@@ -67,7 +73,12 @@ async def search(
     )
 
 
-@router.post("/ask", response_model=AskResponse, summary="Answer a question with citations")
+@router.post(
+    "/ask",
+    response_model=AskResponse,
+    summary="Answer a question with citations",
+    dependencies=[Depends(limit_by_user(KNOWLEDGE_ASK))],
+)
 async def ask(
     brand_id: uuid.UUID,
     data: AskRequest,

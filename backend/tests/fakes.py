@@ -55,9 +55,11 @@ class FakeSearchProvider:
     def __init__(self, scripted: dict[str, object] | None = None) -> None:
         self.scripted = scripted or {}
         self.calls: list[str] = []
+        self.options: dict[str, object] = {}  # query -> SearchOptions it was called with
 
     async def search(self, query: str, options) -> list[dict]:
         self.calls.append(query)
+        self.options[query] = options
         response = self.scripted.get(query)
         if isinstance(response, Exception):
             raise response

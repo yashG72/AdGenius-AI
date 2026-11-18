@@ -140,10 +140,17 @@ export function CampaignWizard({
     if (await form.trigger(STEPS[step]!.fields)) setStep((s) => s + 1)
   }
 
+  // Stays true after success so the button can't fire again while the next page loads.
+  const [submitted, setSubmitted] = useState(false)
+
   const submit = form.handleSubmit(async (v) => {
+    // Only the review step submits (Enter in an earlier field must not create anything).
+    if (step !== STEPS.length - 1 || submitted) return
+    let createdId: string | undefined
     try {
       if (editing && campaign) {
         await update.mutateAsync({ name: v.name, brief: toBrief(v) })
+        setSubmitted(true)
         toast.success("Brief updated — future runs will use it")
         if (startNow) {
           const run = await start.generate.mutateAsync()
@@ -154,6 +161,8 @@ export function CampaignWizard({
         return
       }
       const created = await create.mutateAsync({ brand_id: v.brand_id, name: v.name, brief: toBrief(v) })
+      createdId = created.id
+      setSubmitted(true)
       if (!startNow) {
         router.push(`/orgs/${orgId}/campaigns/${created.id}`)
         return
@@ -166,10 +175,17 @@ export function CampaignWizard({
       router.push(`/orgs/${orgId}/campaigns/${created.id}/runs/${run.id}`)
     } catch (e) {
       toast.error(errorMessage(e))
+      if (createdId) {
+        // The campaign exists; starting the run failed (e.g. rate limit). Don't let a
+        // retry create a duplicate - continue from the campaign page instead.
+        router.push(`/orgs/${orgId}/campaigns/${createdId}`)
+      } else {
+        setSubmitted(false)
+      }
     }
   })
 
-  const busy = formState.isSubmitting
+  const busy = formState.isSubmitting || submitted
 
   return (
     <div className="grid gap-8 lg:grid-cols-[220px_1fr]">
@@ -414,11 +430,13 @@ export function CampaignWizard({
                 <ChevronLeftIcon /> Back
               </Button>
               {step < STEPS.length - 1 ? (
-                <Button type="button" onClick={next}>
+                // Distinct keys: without them React reuses this <button> for the submit
+                // button below, and the click that reveals the review step also submits.
+                <Button key="continue" type="button" onClick={next}>
                   Continue <ChevronRightIcon />
                 </Button>
               ) : (
-                <Button type="submit" disabled={busy}>
+                <Button key="submit" type="submit" disabled={busy}>
                   <SparklesIcon />
                   {busy ? "Working…" : startNow ? (editing ? "Save & generate" : "Create & generate") : editing ? "Save brief" : "Create campaign"}
                 </Button>

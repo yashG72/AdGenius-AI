@@ -16,7 +16,7 @@ export async function POST(request: NextRequest) {
   if (!refreshToken) {
     return NextResponse.json({ error: { code: "not_authenticated" } }, { status: 401 })
   }
-  const backend = await callBackend("/auth/refresh", { refresh_token: refreshToken })
+  const backend = await callBackend("/auth/refresh", { refresh_token: refreshToken }, request)
   if (!backend.ok) {
     // Expired, revoked or reused: the session is over, drop the cookie.
     return clearSession(NextResponse.json(await backend.json(), { status: backend.status }))

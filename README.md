@@ -77,14 +77,20 @@ ruff check .                        # lint
 Health checks: `GET /api/v1/health` (liveness) and `GET /api/v1/health/ready`
 (database, Redis, Qdrant).
 
-### Background services (three terminals)
+### Background services
 
 ```powershell
-powershell -File $env:USERPROFILE\redis8\start-redis.ps1                 # 1. Redis (job queue)
-powershell -File $env:USERPROFILE\qdrant\start-qdrant.ps1                # 2. vector DB
-uvicorn app.main:app --reload                                            # 3. API
-celery -A app.worker.celery_app worker --pool=solo --loglevel=info       # 4. worker
+powershell -File $env:USERPROFILE\redis8\start-redis.ps1    # 1. Redis (job queue, cache, rate limits)
+powershell -File $env:USERPROFILE\qdrant\start-qdrant.ps1   # 2. vector DB
+uvicorn app.main:app --reload                               # 3. API
+# 4. workers - one per queue, so a long campaign never delays document indexing
+celery -A app.worker.celery_app worker --pool=solo -Q default -n default@%h --loglevel=info
+celery -A app.worker.celery_app worker --pool=solo -Q campaigns -n campaigns@%h --loglevel=info
+celery -A app.worker.celery_app beat --loglevel=info        # 5. optional: daily housekeeping
 ```
+
+A single worker can serve both queues with `-Q default,campaigns`, but a worker started
+**without** `-Q` only listens to `default` - campaign runs would then wait in `queued`.
 
 PostgreSQL runs as a Windows service. On Windows, Celery needs `--pool=solo`. Uploaded
 documents stay `pending` until a worker picks them up.
@@ -108,6 +114,8 @@ A test (`test_migrations_match_models`) fails if a model changes without a match
 - Collections are returned as `{"items": [...]}`; paginated ones add `total`, `limit`, `offset`.
 - Users only see organizations (and their brands) they belong to; everything else is `404`.
 - Organization-scoped collections take `?organization_id=...` (e.g. `GET /brands`).
+- Too many requests return `429` with a `Retry-After` header (see [docs/SECURITY.md](docs/SECURITY.md)).
+- Request bodies over 1 MB (uploads: 26 MB) return `413`.
 - Deleting a brand is a soft delete (history is kept; it disappears from the API).
 
 ### Campaign flow

@@ -9,6 +9,7 @@ Used by the API now and by the Competitor Intelligence Agent in phase 7.
 
 import asyncio
 import logging
+import re
 from collections.abc import Callable
 from dataclasses import dataclass, field
 from datetime import UTC, datetime
@@ -19,7 +20,7 @@ from app.core.config import Settings
 from app.llm.client import StructuredLLM
 from app.research.cache import cache_key
 from app.research.sanitize import escape_for_prompt
-from app.research.web_search import WebResult, WebSearchError, WebSearchService
+from app.research.web_search import SearchOptions, WebResult, WebSearchError, WebSearchService
 
 logger = logging.getLogger(__name__)
 
@@ -54,6 +55,11 @@ class BrandResearchContext:
             if value:
                 lines.append(f"{label}: {value[:1500]}")
         return "\n".join(lines)
+
+
+# Trend queries only make sense on recent pages: live runs used to cite years-old
+# "trends". Such queries are restricted to the past year (Tavily `time_range`).
+_RECENT_ONLY = re.compile(r"\b(trends?|trending|latest|this year|20\d\d)\b", re.IGNORECASE)
 
 
 # ---------- LLM contracts ----------
@@ -244,8 +250,12 @@ class CompetitorResearchService:
 
         async def run(query: str) -> list[WebResult] | None:
             async with semaphore:
+                recent = "year" if _RECENT_ONLY.search(query) else None
+                options = SearchOptions(
+                    max_results=self.settings.web_search_max_results, time_range=recent
+                )
                 try:
-                    return await self.search.search(query)
+                    return await self.search.search(query, options)
                 except WebSearchError as exc:
                     logger.info("Search failed for %r: %s", query, exc)
                     return None

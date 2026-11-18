@@ -11,6 +11,7 @@ from typing import Annotated
 from fastapi import APIRouter, BackgroundTasks, Depends, File, Form, Query, UploadFile, status
 
 from app.api.deps import CurrentUserDep, DbSessionDep, SettingsDep
+from app.api.rate_limits import DOCUMENT_UPLOADS, limit_by_user
 from app.core.exceptions import PermissionDeniedError
 from app.core.storage import FileStorage, get_storage
 from app.models import DocumentStatus, DocumentType, MembershipRole
@@ -28,6 +29,7 @@ StorageDep = Annotated[FileStorage, Depends(get_storage)]
     "/brands/{brand_id}/documents",
     response_model=DocumentRead,
     status_code=status.HTTP_201_CREATED,
+    dependencies=[Depends(limit_by_user(DOCUMENT_UPLOADS))],
     summary="Upload a PDF, DOCX, TXT or CSV document",
 )
 async def upload_document(

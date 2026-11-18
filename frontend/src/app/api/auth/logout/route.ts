@@ -7,7 +7,7 @@ export async function POST(request: NextRequest) {
   if (!isSameOrigin(request)) return forbidden()
   const refreshToken = request.cookies.get(REFRESH_COOKIE)?.value
   if (refreshToken) {
-    await callBackend("/auth/logout", { refresh_token: refreshToken }).catch(() => undefined)
+    await callBackend("/auth/logout", { refresh_token: refreshToken }, request).catch(() => undefined)
   }
   return clearSession(new NextResponse(null, { status: 204 }))
 }

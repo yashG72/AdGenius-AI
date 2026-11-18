@@ -25,10 +25,12 @@ def make_competitor_analyst(deps: AgentDeps):
             }
 
         brand, brief = state["brand"], state["brief"]
+        # Built ONLY from the brief, never from the Campaign Manager's LLM-written focus:
+        # the focus is part of the research-plan cache key, and LLM wording changes on
+        # every run, so it made every regeneration re-plan and re-spend ~6 search credits.
         focus = " ".join(
             part
             for part in [
-                plan.get("competitor_research_focus"),
                 brief.get("competitor_focus"),
                 f"{brief.get('platform')} advertising for {brief.get('target_audience')}",
             ]

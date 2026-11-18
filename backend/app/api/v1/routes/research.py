@@ -12,6 +12,7 @@ from fastapi import APIRouter, Depends
 from pydantic import BaseModel, Field, StringConstraints
 
 from app.api.deps import CurrentUserDep, DbSessionDep, SettingsDep
+from app.api.rate_limits import WEB_RESEARCH, limit_by_user
 from app.llm.client import LLMNotConfiguredError, get_llm
 from app.research.competitor import (
     BrandResearchContext,
@@ -47,6 +48,7 @@ ResearchDep = Annotated[CompetitorResearchService, Depends(get_competitor_resear
 @router.post(
     "/competitors",
     response_model=CompetitorReport,
+    dependencies=[Depends(limit_by_user(WEB_RESEARCH))],
     summary="Research competitors and market trends on the live web (cited)",
 )
 async def research_competitors(

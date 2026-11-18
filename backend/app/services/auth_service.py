@@ -4,7 +4,7 @@ import logging
 import uuid
 from datetime import UTC, datetime, timedelta
 
-from sqlalchemy import select, update
+from sqlalchemy import delete, func, select, update
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 from starlette.concurrency import run_in_threadpool
@@ -188,3 +188,26 @@ async def change_password(
         .values(revoked_at=_utcnow())
     )
     await session.commit()
+
+
+# ---------- Housekeeping ----------
+
+
+async def purge_expired_refresh_tokens(session: AsyncSession, *, grace_days: int = 7) -> int:
+    """Delete token families whose NEWEST token expired more than `grace_days` ago.
+
+    Whole families only: a live family keeps its consumed (revoked) tokens, because
+    those are exactly what reuse detection needs to recognise a stolen copy.
+    Returns the number of rows deleted.
+    """
+    cutoff = _utcnow() - timedelta(days=grace_days)
+    dead_families = (
+        select(RefreshToken.family_id)
+        .group_by(RefreshToken.family_id)
+        .having(func.max(RefreshToken.expires_at) < cutoff)
+    )
+    result = await session.execute(
+        delete(RefreshToken).where(RefreshToken.family_id.in_(dead_families))
+    )
+    await session.commit()
+    return result.rowcount or 0

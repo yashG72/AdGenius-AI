@@ -4,7 +4,7 @@ import { callBackend, forbidden, forwardError, isSameOrigin, tokenResponse } fro
 
 export async function POST(request: NextRequest) {
   if (!isSameOrigin(request)) return forbidden()
-  const backend = await callBackend("/auth/login", await request.json())
+  const backend = await callBackend("/auth/login", await request.json(), request)
   if (!backend.ok) return forwardError(backend)
   return tokenResponse(await backend.json())
 }
