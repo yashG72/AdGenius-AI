@@ -9,6 +9,8 @@ image-generation prompts, and critique the result before a human approves it.
 > live multi-agent run → concept approval → evaluation → script/storyboard editing → PDF.
 > Frontend docs: [frontend/README.md](frontend/README.md). See [docs/RAG_EVALUATION.md](docs/RAG_EVALUATION.md)
 > for how retrieval settings were chosen. See [docs/ROADMAP.md](docs/ROADMAP.md) for the phase plan.
+> **New to the code?** Start with [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md): every file and
+> how they work together, flow by flow.
 
 ## Tech stack
 
