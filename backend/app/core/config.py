@@ -202,6 +202,11 @@ class Settings(BaseSettings):
                 raise ValueError("JWT_SECRET_KEY must be a random value of 32+ characters.")
             if self.debug:
                 raise ValueError("DEBUG must be off outside local/test environments.")
+            if urlsplit(self.database_url).hostname in ("localhost", "127.0.0.1", "::1"):
+                raise ValueError(
+                    "DATABASE_URL is not set (it still points at localhost). Paste the hosted "
+                    "database's connection string into the DATABASE_URL environment variable."
+                )
             if "*" in self.cors_origins:
                 raise ValueError("CORS_ORIGINS cannot be '*' when credentials are allowed.")
         return self

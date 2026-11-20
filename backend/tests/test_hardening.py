@@ -235,16 +235,26 @@ async def test_oversized_chunked_body_is_rejected(client: AsyncClient) -> None:
         ({"jwt_secret_key": "short"}, "JWT_SECRET_KEY"),
         ({"debug": True}, "DEBUG"),
         ({"cors_origins": ["*"]}, "CORS_ORIGINS"),
+        ({"database_url": "postgresql+asyncpg://u:p@localhost:5432/app"}, "DATABASE_URL"),
     ],
 )
 def test_production_settings_are_guarded(overrides: dict, message: str) -> None:
-    good = {"environment": "production", "jwt_secret_key": "k" * 40}
+    good = {
+        "environment": "production",
+        "jwt_secret_key": "k" * 40,
+        "database_url": "postgresql+asyncpg://u:p@db.example.com/app",
+    }
     with pytest.raises(ValidationError, match=message):
         Settings(_env_file=None, **{**good, **overrides})
 
 
 def test_production_settings_accept_a_safe_config() -> None:
-    Settings(_env_file=None, environment="production", jwt_secret_key="k" * 40)
+    Settings(
+        _env_file=None,
+        environment="production",
+        jwt_secret_key="k" * 40,
+        database_url="postgresql+asyncpg://u:p@db.example.com/app",
+    )
 
 
 # ---------- Token housekeeping ----------

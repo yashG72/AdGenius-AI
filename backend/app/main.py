@@ -9,6 +9,7 @@ import asyncio
 import logging
 from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
+from urllib.parse import urlsplit
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
@@ -44,6 +45,15 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
     # Startup (the DB pool connects lazily on first query).
     logger.info("Starting %s v%s", app.title, app.version)
     settings = get_settings()
+    # Hosts only (never credentials): makes "connected to the wrong place" obvious in logs.
+    logger.info(
+        "Database host: %s | Qdrant: %s | Redis: %s | jobs: %s | embeddings: %s",
+        urlsplit(settings.database_url).hostname,
+        urlsplit(settings.qdrant_url).hostname,
+        urlsplit(settings.redis_url).hostname if settings.redis_url else "off",
+        settings.task_mode,
+        settings.embedding_provider,
+    )
     if settings.task_mode == "inline":
         # Jobs run on this event loop (no Celery workers). Pick up anything a previous
         # process left unfinished - in the background, so startup never waits on it.
