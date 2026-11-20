@@ -36,19 +36,24 @@ async def _check_redis(settings: Settings) -> None:
 
 
 async def _check_qdrant(settings: Settings) -> None:
-    client = AsyncQdrantClient(url=settings.qdrant_url, timeout=2)
+    api_key = settings.qdrant_api_key.get_secret_value() if settings.qdrant_api_key else None
+    client = AsyncQdrantClient(url=settings.qdrant_url, api_key=api_key, timeout=5)
     try:
         await client.get_collections()
+        # A real read on our collection (when it exists) also counts as cluster activity,
+        # which keeps a free Qdrant Cloud cluster from being suspended (see keep-alive.yml).
+        if await client.collection_exists(settings.qdrant_collection):
+            await client.count(settings.qdrant_collection, exact=False)
     finally:
         await client.close()
 
 
 def get_readiness_checks(settings: SettingsDep) -> dict[str, Check]:
     """External dependency checks (overridden in tests)."""
-    return {
-        "redis": partial(_check_redis, settings),
-        "qdrant": partial(_check_qdrant, settings),
-    }
+    checks: dict[str, Check] = {"qdrant": partial(_check_qdrant, settings)}
+    if settings.redis_url:  # optional when jobs run inline (see TASK_MODE)
+        checks["redis"] = partial(_check_redis, settings)
+    return checks
 
 
 @router.get("", response_model=HealthResponse, summary="Liveness check")

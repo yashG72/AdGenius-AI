@@ -29,6 +29,7 @@ tiktoken>=0.8                # token counting for chunk sizes
 # RAG engine (phase 5)
 langchain-core>=0.3          # prompts, messages, structured output
 langchain-google-genai>=2.0  # Gemini chat models (free AI Studio tier)
+google-genai>=1.0            # Gemini embeddings API (EMBEDDING_PROVIDER=gemini)
 
 # Multi-agent workflow (phase 7)
 langgraph>=0.4                          # stateful agent graphs, interrupts, checkpoints

@@ -15,9 +15,9 @@ from typing import Annotated
 from fastapi import Depends, Request
 
 from app.api.deps import CurrentUserDep, SettingsDep
-from app.core.config import Settings
+from app.core.config import Settings, get_settings
 from app.core.exceptions import RateLimitedError
-from app.core.rate_limit import Limit, RateLimiter, RedisRateLimiter
+from app.core.rate_limit import InMemoryRateLimiter, Limit, RateLimiter, RedisRateLimiter
 from app.research.cache import get_redis
 
 # ---------- Policies (one place to tune them) ----------
@@ -39,8 +39,14 @@ PASSWORD_CHANGE = Limit("password-change", 5, 15 * 60)  # verifies the current p
 # ---------- Limiter + client IP ----------
 
 
+# Used when Redis isn't configured: correct for ONE API instance (free hosting).
+_memory_limiter = InMemoryRateLimiter()
+
+
 def get_rate_limiter() -> RateLimiter:
     """Redis-backed limiter (shared by every API process). Tests override this."""
+    if not get_settings().redis_url:
+        return _memory_limiter
     return RedisRateLimiter(get_redis())
 
 

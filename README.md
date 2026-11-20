@@ -10,7 +10,8 @@ image-generation prompts, and critique the result before a human approves it.
 > Frontend docs: [frontend/README.md](frontend/README.md). See [docs/RAG_EVALUATION.md](docs/RAG_EVALUATION.md)
 > for how retrieval settings were chosen. See [docs/ROADMAP.md](docs/ROADMAP.md) for the phase plan.
 > **New to the code?** Start with [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md): every file and
-> how they work together, flow by flow.
+> how they work together, flow by flow. **Deploying?** [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md)
+> puts the whole stack on free plans (Render, Vercel, Neon, Qdrant Cloud) - no Docker needed.
 
 ## Tech stack
 

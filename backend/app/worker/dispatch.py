@@ -1,4 +1,7 @@
-"""API-side helpers that put jobs on the queue.
+"""API-side helpers that start background jobs.
+
+TASK_MODE=celery (default): put the job on a Redis queue for a worker process.
+TASK_MODE=inline: run it in this process (app/worker/inline.py) - for free hosting.
 
 If Redis is down, the upload must still succeed: the document simply stays `pending`
 and can be re-queued later via the reindex endpoint. So publishing never retries or
@@ -8,10 +11,21 @@ blocks the request, and failures are logged rather than raised.
 import logging
 import uuid
 
+from app.core.config import get_settings
+
 logger = logging.getLogger(__name__)
 
 
+def _inline() -> bool:
+    return get_settings().task_mode == "inline"
+
+
 def enqueue_ingestion(document_id: uuid.UUID, *, force: bool = False) -> bool:
+    if _inline():
+        from app.worker.inline import submit_ingestion
+
+        return submit_ingestion(document_id, force)
+
     from app.worker.tasks import ingest_document_task
 
     try:
@@ -23,7 +37,12 @@ def enqueue_ingestion(document_id: uuid.UUID, *, force: bool = False) -> bool:
 
 
 def enqueue_campaign_run(run_id: uuid.UUID) -> bool:
-    """Queue one lifecycle step of a campaign run (start / resume / continue)."""
+    """Start one lifecycle step of a campaign run (start / resume / continue)."""
+    if _inline():
+        from app.worker.inline import submit_campaign
+
+        return submit_campaign(run_id)
+
     from app.worker.tasks import execute_campaign_run_task
 
     try:
@@ -35,6 +54,11 @@ def enqueue_campaign_run(run_id: uuid.UUID) -> bool:
 
 
 def enqueue_cleanup(document_ids: list[uuid.UUID], *, brand_id: uuid.UUID | None = None) -> bool:
+    if _inline():
+        from app.worker.inline import submit_cleanup
+
+        return submit_cleanup(list(document_ids), brand_id)
+
     from app.worker.tasks import cleanup_documents_task
 
     try:

@@ -70,6 +70,20 @@ class InMemorySearchCache:
             self._store[key] = (time.monotonic() + ttl_seconds, value)
 
 
+# Shared by the whole process when Redis is not configured (single-instance hosting).
+_memory_cache = InMemorySearchCache()
+
+
+def get_search_cache(client: redis.Redis | None = None) -> SearchCache:
+    """Redis-backed cache when REDIS_URL is set, else the process-wide in-memory cache.
+
+    `client`: a Redis client bound to the caller's event loop (workers create their own).
+    """
+    if not get_settings().redis_url:
+        return _memory_cache
+    return RedisSearchCache(client or get_redis())
+
+
 @lru_cache
 def get_redis() -> redis.Redis:
     """Shared async Redis client for the API process (closed on app shutdown)."""

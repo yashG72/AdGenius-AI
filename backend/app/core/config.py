@@ -63,9 +63,15 @@ class Settings(BaseSettings):
     access_token_expire_minutes: int = Field(default=15, ge=1)
     refresh_token_expire_days: int = Field(default=30, ge=1)
 
-    # ---------- Redis / Celery ----------
+    # ---------- Redis / background jobs ----------
     # 127.0.0.1 rather than "localhost": avoids slow IPv6-then-IPv4 attempts on Windows.
-    redis_url: str = "redis://127.0.0.1:6379/0"
+    # Empty = no Redis: caches and rate limits fall back to in-process memory, which is
+    # fine for a single-instance deployment (requires TASK_MODE=inline: no queue).
+    redis_url: str | None = "redis://127.0.0.1:6379/0"
+    # "celery": jobs go to Redis queues and separate worker processes (local dev, scalable).
+    # "inline": jobs run inside the API process (free hosting with no background workers).
+    task_mode: Literal["celery", "inline"] = "celery"
+    inline_max_concurrent_campaigns: int = Field(default=1, ge=1, le=4)  # bounds RAM use
 
     # ---------- Qdrant (vector database) ----------
     qdrant_url: str = "http://127.0.0.1:6333"
@@ -77,6 +83,12 @@ class Settings(BaseSettings):
     dense_embedding_model: str = "jinaai/jina-embeddings-v2-small-en"
     sparse_embedding_model: str = "Qdrant/bm25"  # keyword vectors for hybrid search
     embedding_batch_size: int = Field(default=16, ge=1)
+    # "local" = FastEmbed models on this machine; "gemini" = Gemini embedding API for the
+    # dense vectors (no model in RAM - for small hosts). Changing it requires re-indexing:
+    # vectors from different models are not comparable (use a new QDRANT_COLLECTION).
+    embedding_provider: Literal["local", "gemini"] = "local"
+    gemini_embedding_model: str = "gemini-embedding-001"
+    gemini_embedding_dim: int = Field(default=768, ge=128, le=3072)
     embedding_cache_dir: Path = Path.home() / ".cache" / "adgenius" / "fastembed"
 
     # ---------- Documents ----------
@@ -141,6 +153,12 @@ class Settings(BaseSettings):
     def _overlap_smaller_than_chunk(self) -> "Settings":
         if self.chunk_overlap_tokens >= self.chunk_size_tokens:
             raise ValueError("CHUNK_OVERLAP_TOKENS must be smaller than CHUNK_SIZE_TOKENS.")
+        return self
+
+    @model_validator(mode="after")
+    def _queue_needs_redis(self) -> "Settings":
+        if self.task_mode == "celery" and not self.redis_url:
+            raise ValueError("TASK_MODE=celery needs REDIS_URL (or set TASK_MODE=inline).")
         return self
 
     @model_validator(mode="after")

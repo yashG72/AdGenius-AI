@@ -11,7 +11,7 @@ migrates them itself (`setup()`), so they are kept apart from our Alembic-manage
 
 from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
-from urllib.parse import quote
+from urllib.parse import parse_qsl, quote, urlencode, urlsplit, urlunsplit
 
 import psycopg
 from langgraph.checkpoint.postgres.aio import AsyncPostgresSaver
@@ -20,8 +20,14 @@ CHECKPOINT_SCHEMA = "langgraph"
 
 
 def psycopg_conninfo(database_url: str) -> str:
-    """SQLAlchemy URL (postgresql+asyncpg://...) -> libpq URL for psycopg."""
-    return database_url.replace("postgresql+asyncpg://", "postgresql://", 1)
+    """SQLAlchemy URL (postgresql+asyncpg://...) -> libpq URL for psycopg.
+
+    asyncpg spells TLS as `ssl=require` (needed by hosted Postgres such as Neon); libpq
+    only understands `sslmode=require`, so the parameter is translated.
+    """
+    url = urlsplit(database_url.replace("postgresql+asyncpg://", "postgresql://", 1))
+    params = [("sslmode" if k == "ssl" else k, v) for k, v in parse_qsl(url.query)]
+    return urlunsplit(url._replace(query=urlencode(params)))
 
 
 @asynccontextmanager

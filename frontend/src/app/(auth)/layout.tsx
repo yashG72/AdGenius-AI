@@ -1,4 +1,5 @@
 import { Logo } from "@/components/app/logo"
+import { ServerWakeNotice } from "@/components/app/server-wake-notice"
 
 export default function AuthLayout({ children }: LayoutProps<"/">) {
   return (
@@ -15,6 +16,7 @@ export default function AuthLayout({ children }: LayoutProps<"/">) {
             Your multi-agent creative agency — from brief to storyboard.
           </p>
         </div>
+        <ServerWakeNotice />
         {children}
       </div>
     </main>

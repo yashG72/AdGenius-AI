@@ -8,7 +8,7 @@ from typing import Any, Literal, Protocol
 
 from app.core.config import Settings, get_settings
 from app.core.exceptions import ServiceUnavailableError
-from app.research.cache import RedisSearchCache, SearchCache, cache_key, get_redis
+from app.research.cache import SearchCache, cache_key, get_search_cache
 from app.research.sanitize import clean_snippet, domain_of, normalize_url
 
 logger = logging.getLogger(__name__)
@@ -150,7 +150,7 @@ def get_web_search_service() -> WebSearchService | None:
         return None
     return WebSearchService(
         provider=_tavily(key, settings.web_search_depth, settings.web_search_timeout_seconds),
-        cache=RedisSearchCache(get_redis()),
+        cache=get_search_cache(),
         settings=settings,
     )
 

@@ -1,0 +1,36 @@
+# Keeps the free-tier demo responsive for visitors.
+#
+# - Every 14 minutes: ping the API's liveness endpoint, so Render's free plan (which
+#   sleeps after 15 idle minutes) doesn't make a visitor wait ~1 minute for a cold start.
+#   One always-on service uses ~730 of the 750 free instance-hours per month.
+# - Once a day: ping the readiness endpoint, which queries the database AND the Qdrant
+#   collection, so Qdrant Cloud doesn't suspend the free cluster for inactivity
+#   (suspended after 1 week unused, deleted after 4).
+#
+# Setup: GitHub repo -> Settings -> Secrets and variables -> Actions -> Variables ->
+#        New variable  API_URL = https://<your-service>.onrender.com
+# Note: GitHub pauses scheduled workflows after 60 days without repository activity;
+#       any push (or "Enable workflow" in the Actions tab) resumes them.
+
+name: keep-alive
+
+on:
+  schedule:
+    - cron: "*/14 * * * *"
+    - cron: "17 6 * * *"   # daily, 06:17 UTC
+  workflow_dispatch: {}     # "Run workflow" button for a manual check
+
+permissions: {}             # needs no access to the repository
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    if: vars.API_URL != ''
+    steps:
+      - name: Wake the API (liveness)
+        run: curl --fail --silent --show-error --retry 5 --retry-delay 15 --retry-all-errors --max-time 90 "${{ vars.API_URL }}/api/v1/health"
+
+      - name: Touch database and vector store (readiness)
+        if: github.event.schedule == '17 6 * * *' || github.event_name == 'workflow_dispatch'
+        run: curl --fail --silent --show-error --retry 3 --retry-delay 20 --retry-all-errors --max-time 90 "${{ vars.API_URL }}/api/v1/health/ready"

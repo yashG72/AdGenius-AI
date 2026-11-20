@@ -62,9 +62,7 @@ async def test_explicit_duplicate_slug_conflicts(client: AsyncClient, register_a
     headers = await register_and_login("jane@example.com")
     await create_org(client, headers, slug="taken-slug")
 
-    response = await client.post(
-        API, json={"name": "Other", "slug": "taken-slug"}, headers=headers
-    )
+    response = await client.post(API, json={"name": "Other", "slug": "taken-slug"}, headers=headers)
     assert response.status_code == 409
 
 
@@ -135,9 +133,7 @@ async def test_add_member_errors(client: AsyncClient, team) -> None:
 
     unknown = await client.post(url, json={"email": "ghost@example.com"}, headers=team["owner"])
     assert unknown.status_code == 404
-    duplicate = await client.post(
-        url, json={"email": "member@example.com"}, headers=team["owner"]
-    )
+    duplicate = await client.post(url, json={"email": "member@example.com"}, headers=team["owner"])
     assert duplicate.status_code == 409
 
 

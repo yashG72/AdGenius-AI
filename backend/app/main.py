@@ -5,6 +5,7 @@ Run locally (from the `backend/` folder):
     uvicorn app.main:app --reload
 """
 
+import asyncio
 import logging
 from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
@@ -26,20 +27,37 @@ from app.core.tracing import configure_tracing
 from app.db.session import engine
 from app.ingestion.vector_store import get_qdrant_client
 from app.research.cache import get_redis
+from app.worker.inline import runner
 
 logger = logging.getLogger(__name__)
 
 
+async def _recover_jobs() -> None:
+    try:
+        await runner.recover(engine)
+    except Exception:  # e.g. database still waking up: never block or crash startup
+        logger.exception("Could not recover unfinished jobs")
+
+
 @asynccontextmanager
 async def lifespan(app: FastAPI) -> AsyncIterator[None]:
-    # Startup (the DB pool connects lazily on first query; Redis/Qdrant join in later phases).
+    # Startup (the DB pool connects lazily on first query).
     logger.info("Starting %s v%s", app.title, app.version)
+    settings = get_settings()
+    if settings.task_mode == "inline":
+        # Jobs run on this event loop (no Celery workers). Pick up anything a previous
+        # process left unfinished - in the background, so startup never waits on it.
+        runner.start(asyncio.get_running_loop(), settings.inline_max_concurrent_campaigns)
+        recovery = asyncio.create_task(_recover_jobs())
     yield
-    # Shutdown: close pooled DB connections and the shared Qdrant client cleanly.
+    # Shutdown: stop inline jobs, close pooled DB connections and shared clients cleanly.
+    if settings.task_mode == "inline":
+        recovery.cancel()
+        await runner.stop()
     await engine.dispose()
     if get_qdrant_client.cache_info().currsize:
         await get_qdrant_client().close()
-    if get_redis.cache_info().currsize:
+    if get_redis.cache_info().currsize:  # only created if REDIS_URL is set
         await get_redis().aclose()
     logger.info("Shut down %s", app.title)
 

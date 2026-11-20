@@ -20,7 +20,7 @@ from app.llm.client import GeminiLLM, LLMNotConfiguredError
 from app.rag.reranker import get_reranker
 from app.rag.retriever import HybridRetriever
 from app.rag.service import RagService
-from app.research.cache import RedisSearchCache
+from app.research.cache import get_search_cache
 from app.research.competitor import CompetitorResearchService
 from app.research.web_search import TavilySearchProvider, WebSearchService
 
@@ -32,7 +32,12 @@ async def live_agent_deps(session: AsyncSession, settings: Settings) -> AsyncIte
         raise LLMNotConfiguredError()
     llm = GeminiLLM(settings)
     qdrant = create_qdrant_client(settings)
-    redis_client = redis.from_url(settings.redis_url, socket_connect_timeout=2, socket_timeout=5)
+    # Own Redis client: a Celery task runs on its own event loop (None = no Redis).
+    redis_client = (
+        redis.from_url(settings.redis_url, socket_connect_timeout=2, socket_timeout=5)
+        if settings.redis_url
+        else None
+    )
     try:
         knowledge = RagService(
             session=session,
@@ -48,7 +53,7 @@ async def live_agent_deps(session: AsyncSession, settings: Settings) -> AsyncIte
                 provider=TavilySearchProvider(
                     tavily_key, settings.web_search_depth, settings.web_search_timeout_seconds
                 ),
-                cache=RedisSearchCache(redis_client),
+                cache=get_search_cache(redis_client),
                 settings=settings,
             )
             competitor = CompetitorResearchService(search=search, llm=llm, settings=settings)
@@ -57,4 +62,5 @@ async def live_agent_deps(session: AsyncSession, settings: Settings) -> AsyncIte
         )
     finally:
         await qdrant.close()
-        await redis_client.aclose()
+        if redis_client is not None:
+            await redis_client.aclose()

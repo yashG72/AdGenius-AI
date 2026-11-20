@@ -1,0 +1,66 @@
+# Render Blueprint: the AdGenius API on Render's free plan.
+# Render reads this file when you choose New -> Blueprint and pick this repository.
+# See docs/DEPLOYMENT.md for the full walkthrough (Neon, Qdrant Cloud, Vercel).
+#
+# Free-plan profile:
+#   - one web process, no background workers -> jobs run inside the API (TASK_MODE=inline)
+#   - 512 MB RAM -> dense embeddings come from the Gemini API (EMBEDDING_PROVIDER=gemini)
+#   - no Redis -> caches and rate limits live in process memory (fine for one instance)
+#   - the service sleeps after ~15 idle minutes; .github/workflows/keep-alive.yml pings it
+
+services:
+  - type: web
+    name: adgenius-api
+    runtime: python
+    plan: free
+    region: singapore          # closest Render region to India
+    rootDir: backend
+    buildCommand: pip install -r requirements.txt
+    # Apply database migrations, then start the API (scripts/serve.py = uvicorn).
+    startCommand: alembic upgrade head && python -m scripts.serve
+    healthCheckPath: /api/v1/health
+    autoDeploy: true           # redeploy on every push to the default branch
+    envVars:
+      # ---------- runtime ----------
+      - key: PYTHON_VERSION
+        value: 3.12.7
+      - key: HOST
+        value: 0.0.0.0
+      - key: ENVIRONMENT
+        value: production
+      - key: LOG_LEVEL
+        value: INFO
+
+      # ---------- free-plan profile ----------
+      - key: TASK_MODE
+        value: inline
+      - key: REDIS_URL
+        value: ""
+      - key: EMBEDDING_PROVIDER
+        value: gemini
+      - key: QDRANT_COLLECTION
+        value: brand_documents
+      - key: MAX_UPLOAD_SIZE_MB
+        value: "5"
+      - key: HSTS_ENABLED
+        value: "true"
+      # Render's load balancer connects from private addresses and appends the real
+      # client IP to X-Forwarded-For; trust only those private ranges.
+      - key: TRUSTED_PROXIES
+        value: '["10.0.0.0/8", "172.16.0.0/12", "192.168.0.0/16"]'
+
+      # ---------- generated / secret: set in the Render dashboard ----------
+      - key: JWT_SECRET_KEY
+        generateValue: true    # Render creates a long random value once
+      - key: DATABASE_URL      # Neon: postgresql+asyncpg://USER:PASSWORD@HOST/DB?ssl=require
+        sync: false
+      - key: QDRANT_URL        # Qdrant Cloud cluster URL (https://...:6333)
+        sync: false
+      - key: QDRANT_API_KEY
+        sync: false
+      - key: GOOGLE_API_KEY
+        sync: false
+      - key: TAVILY_API_KEY
+        sync: false
+      - key: CORS_ORIGINS      # JSON list with your Vercel URL, e.g. ["https://adgenius.vercel.app"]
+        sync: false
