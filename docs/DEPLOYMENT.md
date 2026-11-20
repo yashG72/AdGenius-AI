@@ -1,5 +1,7 @@
 # Deployment (free tiers)
 
+**Live:** website https://adgenius-ai-peach.vercel.app · API https://adgenius-api-czfz.onrender.com
+
 AdGenius runs live on free plans only. It's sized as a portfolio demo: one small server,
 no paid services. This guide is the exact click-path.
 

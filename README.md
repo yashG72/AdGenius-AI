@@ -1,5 +1,7 @@
 # AdGenius AI
 
+**Live demo:** https://adgenius-ai-peach.vercel.app (free hosting: the first visit after a quiet spell can take up to a minute)
+
 A multi-agent generative AI platform that works like a virtual creative advertising agency.
 Specialized AI agents research a brand (RAG over uploaded documents) and its competitors
 (live web search), develop creative concepts, write scripts, build storyboards with
