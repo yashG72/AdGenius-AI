@@ -64,3 +64,6 @@ class UserUpdate(BaseModel):
 
 class MeResponse(UserRead):
     organizations: list[OrganizationWithRole]
+    is_demo: bool = Field(
+        default=False, description="The shared read-only demo account (UI shows a banner)."
+    )

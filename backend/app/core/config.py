@@ -43,6 +43,12 @@ class Settings(BaseSettings):
     # their own, larger limit (MAX_UPLOAD_SIZE_MB).
     max_json_body_kb: int = Field(default=1024, ge=16)
 
+    # ---------- Public demo ("Try the demo" button) ----------
+    # A shared read-only account with a finished sample campaign, created at startup
+    # (see app/demo.py). Off by default; the hosted demo turns it on.
+    demo_enabled: bool = False
+    demo_email: str = "demo@adgenius.app"
+
     # ---------- Rate limiting (Redis) ----------
     rate_limit_enabled: bool = True
     login_max_failures: int = Field(default=5, ge=1)  # per email, then a lockout window

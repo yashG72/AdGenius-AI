@@ -26,6 +26,7 @@ from app.research.cache import get_redis
 LOGIN_PER_IP = Limit("login-ip", 30, 15 * 60)
 REGISTER_PER_IP = Limit("register-ip", 10, 60 * 60)
 REFRESH_PER_IP = Limit("refresh-ip", 120, 15 * 60)
+DEMO_LOGIN_PER_IP = Limit("demo-login-ip", 30, 15 * 60)  # each click issues a session
 
 # Expensive / per user
 KNOWLEDGE_SEARCH = Limit("knowledge-search", 60, 60)  # local embeddings, cheap-ish

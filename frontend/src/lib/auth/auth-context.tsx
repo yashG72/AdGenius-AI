@@ -21,6 +21,8 @@ type AuthContextValue = {
   status: Status
   user: User | undefined
   login: (email: string, password: string) => Promise<void>
+  /** Sign into the shared read-only demo workspace (no credentials). */
+  loginDemo: () => Promise<void>
   register: (input: RegisterInput) => Promise<void>
   logout: () => Promise<void>
 }
@@ -62,6 +64,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setStatus("authenticated")
   }, [])
 
+  const loginDemo = useCallback(async () => {
+    const response = await fetch("/api/auth/demo", { method: "POST" })
+    const body = await response.json()
+    if (!response.ok) throw ApiError.from(response.status, body)
+    setAccessToken(body)
+    setStatus("authenticated")
+  }, [])
+
   const register = useCallback(
     async (input: RegisterInput) => {
       await unwrap(publicApi.POST("/api/v1/auth/register", { body: input }))
@@ -78,8 +88,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, [queryClient])
 
   const value = useMemo(
-    () => ({ status, user: me.data, login, register, logout }),
-    [status, me.data, login, register, logout],
+    () => ({ status, user: me.data, login, loginDemo, register, logout }),
+    [status, me.data, login, loginDemo, register, logout],
   )
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
 }

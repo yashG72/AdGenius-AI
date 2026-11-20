@@ -4,6 +4,7 @@ from fastapi import APIRouter, Depends, status
 
 from app.api.deps import CurrentUserDep, DbSessionDep, SettingsDep
 from app.api.rate_limits import (
+    DEMO_LOGIN_PER_IP,
     LOGIN_PER_IP,
     PASSWORD_CHANGE,
     REFRESH_PER_IP,
@@ -13,8 +14,14 @@ from app.api.rate_limits import (
     limit_by_ip,
     limit_by_user,
 )
-from app.core.exceptions import AuthenticationError, RateLimitedError
+from app.core.exceptions import (
+    AuthenticationError,
+    NotFoundError,
+    RateLimitedError,
+    ServiceUnavailableError,
+)
 from app.core.rate_limit import Limit
+from app.demo import demo_ready, get_demo_user, is_demo_user
 from app.schemas.auth import (
     ChangePasswordRequest,
     LoginRequest,
@@ -72,6 +79,24 @@ async def login(
 
 
 @router.post(
+    "/demo",
+    response_model=TokenResponse,
+    summary="Sign in to the shared read-only demo workspace (no account needed)",
+    dependencies=[Depends(limit_by_ip(DEMO_LOGIN_PER_IP))],
+)
+async def demo_login(session: DbSessionDep, settings: SettingsDep) -> TokenResponse:
+    if not settings.demo_enabled:
+        raise NotFoundError("The demo is not available on this server.")
+    user = await get_demo_user(session, settings)
+    if user is None or not await demo_ready(session, user):
+        # Seeding runs once after a fresh deploy (the agents need a few minutes).
+        raise ServiceUnavailableError(
+            "The demo workspace is still being prepared. Please try again in a few minutes."
+        )
+    return await auth_service.issue_tokens(session, user, settings)
+
+
+@router.post(
     "/refresh", response_model=TokenResponse, dependencies=[Depends(limit_by_ip(REFRESH_PER_IP))]
 )
 async def refresh(
@@ -86,11 +111,12 @@ async def logout(data: RefreshRequest, session: DbSessionDep) -> None:
 
 
 @router.get("/me", response_model=MeResponse)
-async def read_me(user: CurrentUserDep, session: DbSessionDep) -> MeResponse:
+async def read_me(user: CurrentUserDep, session: DbSessionDep, settings: SettingsDep) -> MeResponse:
     organizations = await organization_service.list_user_organizations(session, user.id)
     return MeResponse(
         **UserRead.model_validate(user).model_dump(),
         organizations=[OrganizationWithRole.build(org, role) for org, role in organizations],
+        is_demo=is_demo_user(user, settings),
     )
 
 

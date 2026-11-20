@@ -151,6 +151,28 @@ function UserMenu({ orgId }: { orgId: string }) {
   )
 }
 
+/** Shown in the shared read-only demo workspace: what it is, and how to get your own. */
+function DemoBanner() {
+  const { logout } = useAuth()
+  const router = useRouter()
+  return (
+    <div
+      role="note"
+      className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2 border-b border-primary/30 bg-primary/10 px-4 py-2.5 text-sm sm:px-8"
+    >
+      <p>
+        <span className="font-medium">You&apos;re viewing a read-only demo.</span>{" "}
+        <span className="text-muted-foreground">
+          Open the campaign to see the agents&apos; work, or ask the brand&apos;s knowledge base a question.
+        </span>
+      </p>
+      <Button size="sm" onClick={() => logout().then(() => router.push("/register"))}>
+        Create your own workspace
+      </Button>
+    </div>
+  )
+}
+
 export function WorkspaceShell({ children }: { children: React.ReactNode }) {
   const { orgId } = useParams<{ orgId: string }>()
   const { user } = useAuth()
@@ -195,6 +217,7 @@ export function WorkspaceShell({ children }: { children: React.ReactNode }) {
           <Logo className="shrink-0 text-sm" />
           <NavLinks orgId={orgId} className="flex gap-1" />
         </div>
+        {user?.is_demo && <DemoBanner />}
         <main className="mx-auto w-full max-w-6xl flex-1 space-y-8 px-4 py-8 sm:px-8">{children}</main>
       </div>
     </div>

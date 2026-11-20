@@ -40,6 +40,15 @@ async def _recover_jobs() -> None:
         logger.exception("Could not recover unfinished jobs")
 
 
+async def _ensure_demo() -> None:
+    from app.demo import ensure_demo
+
+    try:
+        await ensure_demo(engine)
+    except Exception:  # the app must keep serving even if the demo can't be prepared
+        logger.exception("Could not prepare the demo workspace")
+
+
 @asynccontextmanager
 async def lifespan(app: FastAPI) -> AsyncIterator[None]:
     # Startup (the DB pool connects lazily on first query).
@@ -59,7 +68,12 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
         # process left unfinished - in the background, so startup never waits on it.
         runner.start(asyncio.get_running_loop(), settings.inline_max_concurrent_campaigns)
         recovery = asyncio.create_task(_recover_jobs())
+    if settings.demo_enabled:
+        # Builds the "Try the demo" workspace once; later starts only check it exists.
+        demo_setup = asyncio.create_task(_ensure_demo())
     yield
+    if settings.demo_enabled:
+        demo_setup.cancel()
     # Shutdown: stop inline jobs, close pooled DB connections and shared clients cleanly.
     if settings.task_mode == "inline":
         recovery.cancel()

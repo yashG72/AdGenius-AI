@@ -40,6 +40,10 @@ services:
         value: gemini
       - key: QDRANT_COLLECTION
         value: brand_documents
+      # "Try the demo" button: a read-only sample workspace with a finished campaign,
+      # built once at startup from samples/brewnest (see backend/app/demo.py).
+      - key: DEMO_ENABLED
+        value: "true"
       - key: MAX_UPLOAD_SIZE_MB
         value: "5"
       - key: HSTS_ENABLED

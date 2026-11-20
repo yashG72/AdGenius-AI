@@ -1,6 +1,7 @@
 "use client"
 
 import { zodResolver } from "@hookform/resolvers/zod"
+import { SparklesIcon } from "lucide-react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { useEffect, useState } from "react"
@@ -23,7 +24,8 @@ type Values = z.infer<typeof schema>
 
 /** The `next` redirect is already validated by the page (same-app paths only). */
 export function LoginForm({ next }: { next: string }) {
-  const { login, status } = useAuth()
+  const { login, loginDemo, status } = useAuth()
+  const [demoLoading, setDemoLoading] = useState(false)
   const router = useRouter()
   const [error, setError] = useState<string | null>(null)
   const form = useForm<Values>({ resolver: zodResolver(schema), defaultValues: { email: "", password: "" } })
@@ -40,6 +42,17 @@ export function LoginForm({ next }: { next: string }) {
       setError(errorMessage(e))
     }
   })
+
+  const onDemo = async () => {
+    setError(null)
+    setDemoLoading(true)
+    try {
+      await loginDemo() // the effect above then redirects into the workspace
+    } catch (e) {
+      setError(errorMessage(e))
+      setDemoLoading(false)
+    }
+  }
 
   return (
     <Card>
@@ -73,6 +86,23 @@ export function LoginForm({ next }: { next: string }) {
             <Button type="submit" className="w-full" disabled={form.formState.isSubmitting}>
               {form.formState.isSubmitting ? "Signing in…" : "Sign in"}
             </Button>
+            <div className="flex items-center gap-3 text-xs text-muted-foreground" aria-hidden>
+              <span className="h-px flex-1 bg-border" /> or <span className="h-px flex-1 bg-border" />
+            </div>
+            <div className="space-y-1.5">
+              <Button
+                type="button"
+                variant="outline"
+                className="w-full"
+                onClick={onDemo}
+                disabled={demoLoading || form.formState.isSubmitting}
+              >
+                <SparklesIcon /> {demoLoading ? "Opening the demo…" : "Try the demo, no sign-up"}
+              </Button>
+              <p className="text-center text-xs text-muted-foreground">
+                Explore a finished AI campaign in a read-only sample workspace.
+              </p>
+            </div>
             <p className="text-center text-sm text-muted-foreground">
               New here?{" "}
               <Link href="/register" className="text-primary underline-offset-4 hover:underline">
