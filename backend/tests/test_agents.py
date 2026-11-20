@@ -484,12 +484,25 @@ async def test_postgres_checkpoint_survives_restart(test_database_url: str) -> N
             [],
         ),
         ("Logo must keep clear space around the 'M'", []),
+        # Regression (live demo 2026-11-21): a SPELLING rule banned the brand's own name,
+        # because the check is case-insensitive ("BrewNest" == "brewnest").
+        ('The brand name is always written "Brewnest" - never "BrewNest" or "Brew Nest"', []),
+        ('Never write the name as "BrewNest" or "Brew Nest"; always "Brewnest"', []),
+        # Phrases quoted before the prohibition are the required form, not banned.
+        ("Always end on 'Brewed slow. Lived fast.' and never say 'insane'", ["insane"]),
     ],
 )
 def test_banned_phrases_only_from_wording_prohibitions(rule: str, expected: list[str]) -> None:
     from app.agents.context import banned_phrases
 
     assert banned_phrases({"content_restrictions": [rule]}, None) == expected
+
+
+def test_brand_name_is_never_a_banned_phrase() -> None:
+    from app.agents.context import banned_phrases
+
+    research = {"prohibited_claims": ["Never write 'Brewnest' in all caps or say 'epic'"]}
+    assert banned_phrases({"name": "Brewnest"}, research) == ["epic"]
 
 
 # ---------- Timeline normalisation ----------

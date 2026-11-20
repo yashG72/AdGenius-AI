@@ -214,6 +214,58 @@ async def test_seeding_builds_the_workspace_once(
     assert len(finished) == 2 and finished[0] == finished[1]
 
 
+@pytest.mark.parametrize(
+    ("existing", "expected_new_runs"),
+    [
+        ([RunStatus.COMPLETED], 0),  # approved by the Critic: done
+        ([RunStatus.NEEDS_REVIEW], 1),  # usable, but try once more for a pass
+        ([RunStatus.NEEDS_REVIEW, RunStatus.FAILED, RunStatus.NEEDS_REVIEW], 0),  # cap reached
+    ],
+)
+async def test_demo_prefers_a_passing_campaign_within_the_cap(
+    db_session: AsyncSession,
+    demo_on,
+    monkeypatch: pytest.MonkeyPatch,
+    queued,
+    existing,
+    expected_new_runs,
+) -> None:
+    from contextlib import asynccontextmanager
+
+    ids = await _demo_workspace(db_session, existing[0])
+    for version, status in enumerate(existing[1:], start=2):
+        db_session.add(
+            CampaignRun(
+                campaign_id=ids["campaign"],
+                organization_id=ids["org"],
+                version=version,
+                status=status,
+                brief_snapshot={},
+                brand_snapshot={},
+            )
+        )
+    await db_session.commit()
+    user = await db_session.scalar(select(User).where(User.email == DEMO_EMAIL))
+
+    @asynccontextmanager
+    async def shared():
+        yield db_session
+
+    async def finish_as_completed(_sessions, _user_id, run_id):
+        run = await db_session.get(CampaignRun, run_id)
+        run.status = RunStatus.COMPLETED
+        await db_session.commit()
+        return RunStatus.COMPLETED
+
+    monkeypatch.setattr(demo, "_autopilot", finish_as_completed)
+
+    await demo._ensure_finished_run(shared, user.id, ids["campaign"])
+
+    assert len(queued["campaign"]) == expected_new_runs
+    total = await db_session.scalar(select(func.count()).select_from(CampaignRun))
+    assert total == len(existing) + expected_new_runs
+
+
 async def test_autopilot_approves_the_first_concept(
     db_session: AsyncSession, demo_on, monkeypatch: pytest.MonkeyPatch, queued
 ) -> None:

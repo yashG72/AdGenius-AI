@@ -170,15 +170,38 @@ _PROHIBITS_WORDING = re.compile(
 )
 
 
+def _spelling_key(phrase: str) -> str:
+    """'BrewNest', 'Brew Nest' and 'brewnest' share one key: they differ only in spelling."""
+    return re.sub(r"[\s\-_]+", "", phrase).lower()
+
+
 def banned_phrases(brand: dict[str, Any], brand_research: dict | None) -> list[str]:
     """Literal phrases quoted inside wording prohibitions, e.g. Never say 'healthy'.
 
     Used for a deterministic compliance check that does not rely on the LLM noticing.
+    The check matches case-insensitively, so three kinds of quoted phrase are NOT banned:
+    - phrases quoted before the prohibition ('always written "Brewnest" - never ...');
+    - spelling rules: phrases differing only in case/spacing ('"Brewnest", never
+      "BrewNest"') - a case-insensitive match would flag the CORRECT spelling; the LLM
+      critic still reviews spelling;
+    - the brand's own name, as a last safety net.
     """
     rules = list(brand.get("content_restrictions") or [])
     rules += list((brand_research or {}).get("prohibited_claims") or [])
+    brand_key = _spelling_key(brand.get("name") or "")
     found: set[str] = set()
     for rule in rules:
-        if _PROHIBITS_WORDING.search(rule):
-            found.update(m.strip().lower() for m in _QUOTED.findall(rule))
+        prohibition = _PROHIBITS_WORDING.search(rule)
+        if not prohibition:
+            continue
+        quoted = [m.group(1).strip() for m in _QUOTED.finditer(rule)]
+        keys = [_spelling_key(q) for q in quoted]
+        spelling_variants = {k for k in keys if keys.count(k) > 1}
+        for match in _QUOTED.finditer(rule):
+            phrase, key = match.group(1).strip(), _spelling_key(match.group(1))
+            if match.start() < prohibition.start():
+                continue  # quoted before "never ...": the required form, not the banned one
+            if key in spelling_variants or (brand_key and key == brand_key):
+                continue
+            found.add(phrase.lower())
     return sorted(p for p in found if p)

@@ -254,12 +254,16 @@ async def _wait_for_documents(sessions: async_sessionmaker, brand_id) -> None:
 
 
 async def _ensure_finished_run(sessions: async_sessionmaker, user_id, campaign_id) -> None:
-    """Drive one run to a finished state, approving the first concept automatically."""
+    """Drive runs until one is approved by the Critic, approving concepts automatically.
+
+    The showcase should be a PASSING campaign. A "needs review" run already makes the
+    demo usable (see demo_ready), but while fewer than MAX_DEMO_RUN_ATTEMPTS runs exist,
+    a new version is generated in the hope of a pass; the older ones stay visible.
+    """
     from app.services import campaign_service
     from app.worker import dispatch
 
-    finished = (RunStatus.COMPLETED, RunStatus.NEEDS_REVIEW)
-    for _ in range(MAX_DEMO_RUN_ATTEMPTS):
+    for _ in range(MAX_DEMO_RUN_ATTEMPTS + 1):
         async with sessions() as session:
             runs = list(
                 await session.scalars(
@@ -268,13 +272,15 @@ async def _ensure_finished_run(sessions: async_sessionmaker, user_id, campaign_i
                     .order_by(CampaignRun.version.desc())
                 )
             )
-            if any(r.status in finished for r in runs):
+            if any(r.status is RunStatus.COMPLETED for r in runs):
                 logger.info("Demo: ready")
                 return
-            if len(runs) >= MAX_DEMO_RUN_ATTEMPTS and runs[0].status.is_terminal:
-                logger.error("Demo: giving up after %d failed runs", len(runs))
-                return
             active = runs[0] if runs and not runs[0].status.is_terminal else None
+            if active is None and len(runs) >= MAX_DEMO_RUN_ATTEMPTS:
+                reviewable = any(r.status is RunStatus.NEEDS_REVIEW for r in runs)
+                best = "needs review" if reviewable else "none finished"
+                logger.warning("Demo: stopping after %d runs (best: %s)", len(runs), best)
+                return
             if active is not None:  # e.g. interrupted by a restart: keep watching it
                 run_id = active.id
             else:
@@ -286,7 +292,7 @@ async def _ensure_finished_run(sessions: async_sessionmaker, user_id, campaign_i
                 run_id = run.id
 
         status = await _autopilot(sessions, user_id, run_id)
-        if status in finished:
+        if status is RunStatus.COMPLETED:
             logger.info("Demo: ready")
             return
 

@@ -22,12 +22,17 @@ export function OrgPicker() {
   const orgs = useMemo(() => user?.organizations ?? [], [user])
 
   // Return to the workspace used last time (if the user still belongs to it).
+  // The read-only demo has exactly one workspace: go straight into it.
   useEffect(() => {
+    if (user?.is_demo && orgs[0]) {
+      router.replace(`/orgs/${orgs[0].id}/dashboard`)
+      return
+    }
     const last = lastOrg()
     if (!choosing && last && orgs.some((o) => o.id === last)) {
       router.replace(`/orgs/${last}/dashboard`)
     }
-  }, [choosing, orgs, router])
+  }, [choosing, orgs, router, user?.is_demo])
 
   return (
     <main className="mx-auto flex min-h-screen max-w-3xl flex-col gap-8 px-4 py-10">
@@ -69,15 +74,17 @@ export function OrgPicker() {
         </div>
       )}
 
-      <Card>
-        <CardHeader>
-          <CardTitle>{orgs.length ? "Create another workspace" : "Create your first workspace"}</CardTitle>
-          <CardDescription>You will be its owner and can invite your team later.</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <CreateOrgForm />
-        </CardContent>
-      </Card>
+      {!user?.is_demo && (
+        <Card>
+          <CardHeader>
+            <CardTitle>{orgs.length ? "Create another workspace" : "Create your first workspace"}</CardTitle>
+            <CardDescription>You will be its owner and can invite your team later.</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <CreateOrgForm />
+          </CardContent>
+        </Card>
+      )}
     </main>
   )
 }
