@@ -31,6 +31,20 @@ def test_celery_mode_requires_redis() -> None:
 
 
 @pytest.mark.parametrize(
+    "raw",
+    [
+        # Neon's "Connect" string, pasted verbatim
+        "postgresql://u:p@ep-x.neon.tech/db?sslmode=require&channel_binding=require",
+        "postgres://u:p@ep-x.neon.tech/db?sslmode=require",
+        "postgresql+asyncpg://u:p@ep-x.neon.tech/db?ssl=require",  # already converted
+    ],
+)
+def test_hosted_database_urls_are_normalised_for_asyncpg(raw: str) -> None:
+    settings = Settings(_env_file=None, database_url=raw)
+    assert settings.database_url == "postgresql+asyncpg://u:p@ep-x.neon.tech/db?ssl=require"
+
+
+@pytest.mark.parametrize(
     ("url", "expected"),
     [
         (

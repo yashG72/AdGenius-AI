@@ -7,8 +7,9 @@ Values are validated by Pydantic at startup: a bad value fails fast instead of a
 from functools import lru_cache
 from pathlib import Path
 from typing import Literal
+from urllib.parse import parse_qsl, urlencode, urlsplit, urlunsplit
 
-from pydantic import Field, SecretStr, model_validator
+from pydantic import Field, SecretStr, field_validator, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 # Only acceptable for local/test; the validator below rejects it in staging/production.
@@ -154,6 +155,29 @@ class Settings(BaseSettings):
         if self.chunk_overlap_tokens >= self.chunk_size_tokens:
             raise ValueError("CHUNK_OVERLAP_TOKENS must be smaller than CHUNK_SIZE_TOKENS.")
         return self
+
+    @field_validator("database_url", "test_database_url")
+    @classmethod
+    def _asyncpg_url(cls, value: str | None) -> str | None:
+        """Accept a hosted provider's URL as-is (e.g. Neon's "Connect" string).
+
+        postgres:// or postgresql://  ->  postgresql+asyncpg://   (our async driver)
+        sslmode=require               ->  ssl=require             (asyncpg's spelling)
+        channel_binding=...           ->  dropped                 (libpq-only option)
+        """
+        if not value:
+            return value
+        url = urlsplit(value)
+        if url.scheme in ("postgres", "postgresql"):
+            url = url._replace(scheme="postgresql+asyncpg")
+        if url.scheme != "postgresql+asyncpg":
+            return value
+        params = [
+            ("ssl" if key == "sslmode" else key, val)
+            for key, val in parse_qsl(url.query)
+            if key != "channel_binding"
+        ]
+        return urlunsplit(url._replace(query=urlencode(params)))
 
     @model_validator(mode="after")
     def _queue_needs_redis(self) -> "Settings":

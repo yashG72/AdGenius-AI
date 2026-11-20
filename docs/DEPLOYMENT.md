@@ -50,20 +50,17 @@ directly.
      ```
      postgresql://neondb_owner:PASSWORD@ep-cool-name-123456.ap-southeast-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require
      ```
-3. Rewrite it for the app's async driver. Two changes:
-   - the scheme becomes `postgresql+asyncpg://`;
-   - the whole query string becomes `?ssl=require`.
-   ```
-   postgresql+asyncpg://neondb_owner:PASSWORD@ep-cool-name-123456.ap-southeast-1.aws.neon.tech/neondb?ssl=require
-   ```
-   This is your **`DATABASE_URL`**. Tables are created automatically on the first deploy
-   (`alembic upgrade head` runs before the server starts).
+3. That string is your **`DATABASE_URL`**. Paste it exactly as Neon shows it: the app
+   converts it for its async driver by itself (`postgresql+asyncpg://`, `ssl=require`).
+   Tables are created automatically on the first deploy (`alembic upgrade head` runs
+   before the server starts).
 
 ## 2. Vector database: Qdrant Cloud
 
 1. Sign up at <https://cloud.qdrant.io>. Create a **Free** cluster in the region closest
    to Singapore.
-2. Copy the **cluster URL** (`https://xxxx.cloud.qdrant.io:6333`). This is **`QDRANT_URL`**.
+2. Copy the **cluster endpoint** and add `:6333` (`https://xxxx.cloud.qdrant.io:6333`). This is **`QDRANT_URL`**.
+   Free clusters aren't offered in Singapore; AWS Seoul is the closest region.
 3. Under **API Keys**, create a key. This is **`QDRANT_API_KEY`**.
 
 The collection is created on the first upload. Free clusters are suspended after a week
@@ -79,7 +76,7 @@ without use; the keep-alive workflow (step 5) prevents that.
 
    | Key | Value |
    |---|---|
-   | `DATABASE_URL` | from step 1 |
+   | `DATABASE_URL` | Neon's connection string from step 1, pasted as-is |
    | `QDRANT_URL` / `QDRANT_API_KEY` | from step 2 |
    | `GOOGLE_API_KEY` | your Gemini key |
    | `TAVILY_API_KEY` | your Tavily key |
