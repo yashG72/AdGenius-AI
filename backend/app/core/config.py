@@ -156,6 +156,15 @@ class Settings(BaseSettings):
             raise ValueError("CHUNK_OVERLAP_TOKENS must be smaller than CHUNK_SIZE_TOKENS.")
         return self
 
+    @field_validator("redis_url")
+    @classmethod
+    def _optional_redis(cls, value: str | None) -> str | None:
+        # Hosting dashboards often drop empty variables (the default would then point at
+        # a local Redis), so "none"/"off" is accepted as an explicit "no Redis".
+        if value is None or value.strip().lower() in ("", "none", "off", "disabled", "false"):
+            return None
+        return value
+
     @field_validator("database_url", "test_database_url")
     @classmethod
     def _asyncpg_url(cls, value: str | None) -> str | None:

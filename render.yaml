@@ -34,8 +34,8 @@ services:
       # ---------- free-plan profile ----------
       - key: TASK_MODE
         value: inline
-      - key: REDIS_URL
-        value: ""
+      - key: REDIS_URL         # "none" = no Redis (an empty value is dropped by Render)
+        value: none
       - key: EMBEDDING_PROVIDER
         value: gemini
       - key: QDRANT_COLLECTION

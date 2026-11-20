@@ -24,6 +24,11 @@ pytestmark = pytest.mark.anyio
 # ---------- Settings ----------
 
 
+@pytest.mark.parametrize("value", ["", "none", "None", "off", "disabled"])
+def test_redis_can_be_switched_off_explicitly(value: str) -> None:
+    assert Settings(_env_file=None, task_mode="inline", redis_url=value).redis_url is None
+
+
 def test_celery_mode_requires_redis() -> None:
     with pytest.raises(ValidationError, match="REDIS_URL"):
         Settings(_env_file=None, task_mode="celery", redis_url="")
